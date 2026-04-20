@@ -29,18 +29,22 @@ class GameViewController: UIViewController {
             view.showsFPS = true
             view.showsNodeCount = true
         }
+        
+        let value = UIInterfaceOrientation.landscapeLeft.rawValue
+        UIDevice.current.setValue(value, forKey: "orientation")
     }
 
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        if UIDevice.current.userInterfaceIdiom == .phone {
-            return .allButUpsideDown
-        } else {
-            return .all
-        }
+        return .landscapeRight
     }
 
     override var prefersStatusBarHidden: Bool {
         return true
+    }
+    
+    
+    @IBAction func jumpAction(_ sender: Any) {
+        
     }
 }
 
