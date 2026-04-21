@@ -6,27 +6,36 @@
 //
 
 import Foundation
+import SpriteKit
 
 class Player {
+    
     // Stats
     var health: Int
     var ability: Bool
+    
     // Movement
     enum direction {
-        case up
-        case down
         case left
         case right
     }
+    var jumping: Bool
     var groundPound: Bool
     var sliding: Bool
     var crouch: Bool
+    
+    // Graphics
+    var sprite: SKSpriteNode
+    
     // Init
-    init(health: Int, ability: Bool, groundPound: Bool, sliding: Bool, crouch: Bool) {
-        self.health = health
-        self.ability = ability
-        self.groundPound = groundPound
-        self.sliding = sliding
-        self.crouch = crouch
+    init() {
+        self.health = 100
+        self.ability = false
+        self.jumping = false
+        self.groundPound = false
+        self.sliding = false
+        self.crouch = false
+        
+        self.sprite = SKSpriteNode(imageNamed: "BatbergPlaceHolder")
     }
 }
