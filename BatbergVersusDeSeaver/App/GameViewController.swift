@@ -44,7 +44,15 @@ class GameViewController: UIViewController {
     
     
     @IBAction func jumpAction(_ sender: Any) {
-        
+    }
+    
+    @IBAction func abilityAction(_ sender: Any) {
+    }
+    
+    @IBAction func leftAction(_ sender: Any) {
+    }
+    
+    @IBAction func rightAction(_ sender: Any) {
     }
 }
 
