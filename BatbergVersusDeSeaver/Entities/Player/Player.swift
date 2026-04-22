@@ -6,27 +6,46 @@
 //
 
 import Foundation
+import SpriteKit
 
-class Player {
+class Player: SKNode {
+    
     // Stats
     var health: Int
     var ability: Bool
+    
     // Movement
-    enum direction {
-        case up
-        case down
-        case left
-        case right
-    }
+    var xSpeed: CGFloat
+    var ySpeed: CGFloat
+    var jumping: Bool
     var groundPound: Bool
     var sliding: Bool
     var crouch: Bool
+    
+    // Graphics
+    var sprite: SKSpriteNode
+    
     // Init
-    init(health: Int, ability: Bool, groundPound: Bool, sliding: Bool, crouch: Bool) {
-        self.health = health
-        self.ability = ability
-        self.groundPound = groundPound
-        self.sliding = sliding
-        self.crouch = crouch
+    init() {
+        self.health = 100
+        self.ability = false
+        self.jumping = false
+        self.groundPound = false
+        self.sliding = false
+        self.crouch = false
+        self.xSpeed = 0
+        self.ySpeed = 0
+        self.sprite = SKSpriteNode(imageNamed: "BatbergPlaceHolder")
+        
+        // Get stuff from SKNode
+        super.init()
+        
+        sprite.size = CGSize(width: 300, height: 300)
+        // Add the sprite to a GameScene or any .sks file
+        addChild(sprite)
+    }
+    // This is only for the SpriteKit because it is Objective-C
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
