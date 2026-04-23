@@ -39,11 +39,11 @@ class Player: SKNode {
         
         // Get stuff from SKNode
         super.init()
-        
-        sprite.size = CGSize(width: 300, height: 300)
-        // Add the sprite to a GameScene or any .sks file
-        addChild(sprite)
+        addComponent(SpriteComponent(imageName: "BatbergPlaceHolder"))
+        addComponent(MovementComponent())
+        addComponent(JumpComponent())
     }
+    
     // This is only for the SpriteKit because it is Objective-C
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
