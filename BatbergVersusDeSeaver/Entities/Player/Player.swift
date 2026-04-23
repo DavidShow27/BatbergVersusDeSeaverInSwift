@@ -12,7 +12,7 @@ class Player: GKEntity {
     
     override init() {
         super.init()
-        addComponent(SpriteComponent(imageName: "BatbergPlaceHolder"))
+        addComponent(SpriteComponent(imageName: "BatBergPlaceHolder"))
         addComponent(MovementComponent())
         addComponent(JumpComponent())
         

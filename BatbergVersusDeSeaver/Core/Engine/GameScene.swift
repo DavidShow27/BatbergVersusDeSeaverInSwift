@@ -17,12 +17,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var wall1R = SKSpriteNode()
     var wall1L = SKSpriteNode()
     
+    var player = Player()
+    
     //on scene load
     override func didMove(to view: SKView) {
         
         addChild(makeFLoor(size: CGSize(width: 200, height: 20), position: CGPoint(x: 50, y: -50)))
         
         wall1R = SKSpriteNode(imageNamed: wallImage)
+        
+        if let node =  player.component(ofType: SpriteComponent.self)?.node {
+            node.position = (CGPoint(x: frame.midX, y: frame.midY))
+            addChild(node)
+        }
     }
     
     
@@ -39,8 +46,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
         //before each frame
     override func update(_ currentTime: TimeInterval) {
-        
-        
+        player.component(ofType: MovementComponent.self)?.update(deltaTime: 1/60)
+        player.component(ofType: JumpComponent.self)?.update(deltaTime: 1/60)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        player.component(ofType: JumpComponent.self)?.jump()
     }
 }
 
