@@ -20,3 +20,22 @@ class SpriteComponent: GKComponent {
         fatalError("init(coder:) has not been implemented")
     }
 }
+
+class HealthComponent: GKComponent {
+    var health: Int
+    
+    init(health: Int) {
+        self.health = health
+        super.init()
+    }
+
+    init() {
+        health = 100
+        super.init()
+    }
+
+    func takeDamage(ammount: Int) {
+        health -= ammount
+    }
+        
+}
