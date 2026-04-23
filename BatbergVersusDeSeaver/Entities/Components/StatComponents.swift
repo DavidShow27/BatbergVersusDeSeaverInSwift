@@ -18,7 +18,7 @@ class SpriteComponent: GKComponent {
         node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
         node.physicsBody?.allowsRotation = false
         node.physicsBody?.restitution = 0.0
-        node.physicsBady?.friction = 0.5
+        node.physicsBody?.friction = 0.5
     }
     
     required init?(coder: NSCoder) {
