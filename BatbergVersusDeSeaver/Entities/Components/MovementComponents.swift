@@ -22,7 +22,6 @@ class MovementComponent: GKComponent {
 class JumpComponent: GKComponent {
     
     var jumpStrength: CGFloat = 1000
-    var jumpSpeed: CGFloat
     var isJumping: Bool = false
 
     func jump() {
@@ -30,16 +29,8 @@ class JumpComponent: GKComponent {
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
         isJumping = true
         jumpSpeed = jumpStrength
+        body.applyImpulse(CGVector(dx: 0, dy: jumpStrength))
     }
-    
-    override func update(deltaTime seconds: TimeInterval) {
-        // Add gravity to this somehow
-        if isJumping {
-            jumpSpeed -= 20
-            node.position.y += jumpSpeed
-        }
-        // When collision Component gets added, I will have isJumping = false
-    } 
 }
 
 class DoubleJumpComponent {
