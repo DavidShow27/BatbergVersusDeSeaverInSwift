@@ -17,21 +17,26 @@ struct TitleView: View {
     }
     var body: some View {
         NavigationStack {
-            
-            Text("Batberg VS De Seaver")
-                .font(.custom("MortalKombat-Regular", size: 30))
-            SpriteView(scene: scene)
-                .frame(width: 300, height: 400)
-                .ignoresSafeArea()
-            NavigationLink(destination: StartGameView()) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 100)
-                        .stroke()
-                        .frame(width: 200, height: 50)
-                    Text("START GAME")
+            ZStack {
+                Color.orange.ignoresSafeArea()
+
+                VStack {
+                    Text("Batberg VS De Seaver")
+                        .font(.custom("MortalKombat-Regular", size: 30))
+
+                    NavigationLink(destination: GameView()) {
+                        ZStack {
+                            Rectangle()
+                                .frame(width: 200, height: 50)
+                                .foregroundColor(.black)
+
+                            Text("START GAME")
+                                .font(.custom("MortalKombat-Regular", size: 10))
+                                .foregroundStyle(.white)
+                        }
+                    }
                 }
             }
-            .foregroundStyle(.black)
         }
     }
     init() {
