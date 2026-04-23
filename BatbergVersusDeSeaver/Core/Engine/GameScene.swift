@@ -20,7 +20,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //on scene load
     override func didMove(to view: SKView) {
         
-        addChild(makeFLoor(size: CGSize(width: 200, height: 20), position: CGPoint(x: 0, y: -20)))
+        addChild(makeFLoor(size: CGSize(width: 200, height: 20), position: CGPoint(x: 50, y: -50)))
         
         wall1R = SKSpriteNode(imageNamed: wallImage)
     }
