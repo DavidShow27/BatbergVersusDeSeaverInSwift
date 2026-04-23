@@ -12,6 +12,8 @@ import GameplayKit
 class GameViewController: UIViewController {
     
     var gameScene: GameScene!
+    
+    var player = Player()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,6 +49,7 @@ class GameViewController: UIViewController {
     
     
     @IBAction func jumpAction(_ sender: Any) {
+        player.component(ofType: JumpComponent.self)?.jump()
     }
     
     @IBAction func abilityAction(_ sender: Any) {

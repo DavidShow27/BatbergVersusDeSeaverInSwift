@@ -21,7 +21,7 @@ class MovementComponent: GKComponent {
 
 class JumpComponent: GKComponent {
     
-    var jumpStrength: CGFloat = 1000
+    var jumpStrength: CGFloat = 400
     var isJumping: Bool = false
 
     func jump() {
