@@ -13,6 +13,7 @@ class SpriteComponent: GKComponent {
     
     init(imageName: String) {
         node = SKSpriteNode(imageNamed: imageName)
+        node.size = CGSize(width: 100, height: 100)
         super.init()
 
         node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
