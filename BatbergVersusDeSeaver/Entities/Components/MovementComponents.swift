@@ -13,28 +13,33 @@ class MovementComponent: GKComponent {
     var magnitude: CGFloat = 200
     var direction: CGVector = .zero
     
-    // Grab the entity
-    var spriteComponent: SpriteComponent? {
-        return entity?.component(ofType: SpriteComponent.self)
-    }
-    
     override func update(deltaTime seconds: TimeInterval) {
-        guard let node = spriteComponent?.node else { return }
+        guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
         node.position.x += direction.dx * magnitude * CGFloat(seconds)
     }
 }
 
 class JumpComponent: GKComponent {
-    var jumpStrength: CGFloat = 1000
     
-    var spriteComponent: SpriteComponent? {
-        return entity?.component(ofType: SpriteComponent.self)
+    var jumpStrength: CGFloat = 1000
+    var jumpSpeed: CGFloat
+    var isJumping: Bool = false
+
+    func jump() {
+        if isJumping { return }
+        guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
+        isJumping = true
+        jumpSpeed = jumpStrength
     }
     
     override func update(deltaTime seconds: TimeInterval) {
-        guard let node = spriteComponent?.node else { return }
-        node.position.y += jumpStrength * CGFloat(seconds)
-    }
+        // Add gravity to this somehow
+        if isJumping {
+            jumpSpeed -= 20
+            node.position.y += jumpSpeed
+        }
+        // When collision Component gets added, I will have isJumping = false
+    } 
 }
 
 class DoubleJumpComponent {
