@@ -22,20 +22,31 @@ class SpriteComponent: GKComponent {
 }
 
 class HealthComponent: GKComponent {
+    
     var health: Int
+    var maxHealth: Int
     
     init(health: Int) {
         self.health = health
+        self.maxHealth = health
         super.init()
     }
 
-    init() {
-        health = 100
-        super.init()
+    override func update(deltaTime seconds: TimeInterval) {
+        if health <= 0 {
+            die()
+        }
     }
 
     func takeDamage(ammount: Int) {
         health -= ammount
     }
-        
+
+    func die() {
+        print("You Died")
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }
