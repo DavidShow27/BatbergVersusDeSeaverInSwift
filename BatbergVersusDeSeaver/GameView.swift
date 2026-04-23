@@ -6,11 +6,19 @@
 //
 
 import SwiftUI
+import SpriteKit
 
 struct GameView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+    var scene: SKScene {
+        let scene = GameScene(size: CGSize(width: 800, height: 600))
+        scene.scaleMode = .resizeFill
+        return scene
     }
+    var body: some View {
+        SpriteView(scene: scene)
+            .ignoresSafeArea()
+    }
+
 }
 
 #Preview {

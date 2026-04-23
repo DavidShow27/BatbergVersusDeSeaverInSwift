@@ -26,7 +26,7 @@ class Player: SKNode {
     var sprite: SKSpriteNode
     
     // Init
-    init() {
+    override init() {
         self.health = 100
         self.ability = false
         self.jumping = false

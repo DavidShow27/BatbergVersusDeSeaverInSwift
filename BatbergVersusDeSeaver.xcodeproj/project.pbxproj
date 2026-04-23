@@ -10,9 +10,22 @@
 		53D2F2672F911270003A1D93 /* BatbergVersusDeSeaver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BatbergVersusDeSeaver.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B0D8814C2F98F75C009BFBAA /* Exceptions for "BatbergVersusDeSeaver" folder in "BatbergVersusDeSeaver" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 53D2F2662F911270003A1D93 /* BatbergVersusDeSeaver */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		53D2F2692F911270003A1D93 /* BatbergVersusDeSeaver */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B0D8814C2F98F75C009BFBAA /* Exceptions for "BatbergVersusDeSeaver" folder in "BatbergVersusDeSeaver" target */,
+			);
 			path = BatbergVersusDeSeaver;
 			sourceTree = "<group>";
 		};
@@ -253,6 +266,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BatbergVersusDeSeaver/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -285,6 +299,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BatbergVersusDeSeaver/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
