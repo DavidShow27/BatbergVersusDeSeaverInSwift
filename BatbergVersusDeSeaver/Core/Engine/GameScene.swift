@@ -17,6 +17,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var wall1R = SKSpriteNode()
     var wall1L = SKSpriteNode()
     
+    var player = Player()
+    
+    let cam = SKCameraNode()
+    
     //on scene load
     override func didMove(to view: SKView) {
         
@@ -39,8 +43,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
         //before each frame
     override func update(_ currentTime: TimeInterval) {
+        cam.position.x = player.component(ofType: SpriteComponent.self)?.node.position.x ?? 0
+        cam.position.y = player.component(ofType: SpriteComponent.self)?.node.position.y ?? 0
         
-        
+    }
+    
+    func jump() {
+        player.component(ofType: SpriteComponent.self)?.node.physicsBody?.velocity.dy = 400
+    }
+    
+    func moveLeft() {
+        player.component(ofType: SpriteComponent.self)?.node.physicsBody?.velocity.dx = -300
+    }
+    
+    func moveRight() {
+        player.component(ofType: SpriteComponent.self)?.node.physicsBody?.velocity.dx = 300
     }
 }
 
