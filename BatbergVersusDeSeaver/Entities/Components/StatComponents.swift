@@ -14,6 +14,11 @@ class SpriteComponent: GKComponent {
     init(imageName: String) {
         node = SKSpriteNode(imageNamed: imageName)
         super.init()
+
+        node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
+        node.physicsBody?.allowsRotation = false
+        node.physicsBody?.restitution = 0.0
+        node.physicsBady?.friction = 0.5
     }
     
     required init?(coder: NSCoder) {
