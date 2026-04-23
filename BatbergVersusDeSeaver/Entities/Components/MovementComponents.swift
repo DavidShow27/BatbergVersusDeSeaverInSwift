@@ -27,8 +27,8 @@ class JumpComponent: GKComponent {
     func jump() {
         if isJumping { return }
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
+        guard let body = node.physicsBody else { return }
         isJumping = true
-        jumpSpeed = jumpStrength
         body.applyImpulse(CGVector(dx: 0, dy: jumpStrength))
     }
 }
