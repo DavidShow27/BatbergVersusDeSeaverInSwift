@@ -21,14 +21,14 @@ class MovementComponent: GKComponent {
 
 class JumpComponent: GKComponent {
     
-    var jumpStrength: CGFloat = 1000
+    var jumpStrength: CGFloat = 400
     var isJumping: Bool = false
 
     func jump() {
-        // if isJumping { return }
+        if isJumping { return }
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
         guard let body = node.physicsBody else { return }
-        // isJumping = true
+        isJumping = true
         body.applyImpulse(CGVector(dx: 0, dy: jumpStrength))
     }
 }
