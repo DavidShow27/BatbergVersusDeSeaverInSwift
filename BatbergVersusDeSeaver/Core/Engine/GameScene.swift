@@ -50,6 +50,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         player.component(ofType: MovementComponent.self)?.update(deltaTime: 1/60)
         player.component(ofType: JumpComponent.self)?.update(deltaTime: 1/60)
+        
+        cam.position.x = player.component(ofType: SpriteComponent.self)?.node.position.x ?? 0
+        cam.position.y = player.component(ofType: SpriteComponent.self)?.node.position.y ?? 0
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
