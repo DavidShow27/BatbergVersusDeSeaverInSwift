@@ -10,6 +10,8 @@ import GameplayKit
 
 class Player: GKEntity {
     
+    static let shared = Player()
+    
     override init() {
         super.init()
         addComponent(SpriteComponent(imageName: "BatBergPlaceHolder"))

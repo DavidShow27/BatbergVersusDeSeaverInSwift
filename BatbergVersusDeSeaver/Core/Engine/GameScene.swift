@@ -17,7 +17,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var wall1R = SKSpriteNode()
     var wall1L = SKSpriteNode()
     
-    var player = Player()
+    var player = Player.shared
     
     let cam = SKCameraNode()
     
@@ -28,12 +28,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         wall1R = SKSpriteNode(imageNamed: wallImage)
         
-        if let node =  player.component(ofType: SpriteComponent.self)?.node {
+        if let node = player.component(ofType: SpriteComponent.self)?.node {
             node.position = (CGPoint(x: frame.midX, y: frame.midY))
-            addChild(node)
+            if node.parent == nil {
+                addChild(node)
+            }
         }
+        
+        addChild(cam)
+        self.camera = cam
     }
     
+    //before each frame
+    override func update(_ currentTime: TimeInterval) {
+        player.update(deltaTime: 1/60)
+        player.component(ofType: MovementComponent.self)?.update(deltaTime: 1/60)
+        player.component(ofType: JumpComponent.self)?.update(deltaTime: 1/60)
+        
+        cam.position.x = player.component(ofType: SpriteComponent.self)?.node.position.x ?? 0
+        cam.position.y = player.component(ofType: SpriteComponent.self)?.node.position.y ?? 0
+        
+    }
     
     func makeFLoor(size: CGSize, position: CGPoint) -> SKSpriteNode{
         floor1 = SKSpriteNode(imageNamed: floorImage)
@@ -45,14 +60,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         floor1.physicsBody?.collisionBitMask = 1
         floor1.name = "floor1"
         return floor1
-    }
-        //before each frame
-    override func update(_ currentTime: TimeInterval) {
-        player.component(ofType: MovementComponent.self)?.update(deltaTime: 1/60)
-        player.component(ofType: JumpComponent.self)?.update(deltaTime: 1/60)
-        
-        cam.position.x = player.component(ofType: SpriteComponent.self)?.node.position.x ?? 0
-        cam.position.y = player.component(ofType: SpriteComponent.self)?.node.position.y ?? 0
     }
 }
 

@@ -25,6 +25,10 @@ class MovementComponent: GKComponent {
     func right() {
         direction = CGVectorMake(1, 0)
     }
+    
+    func stop() {
+        direction = .zero
+    }
 }
 
 class JumpComponent: GKComponent {
@@ -33,11 +37,15 @@ class JumpComponent: GKComponent {
     var isJumping: Bool = false
 
     func jump() {
-        if isJumping { return }
+        //if isJumping { return }
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
         guard let body = node.physicsBody else { return }
-        isJumping = true
+        //isJumping = true
         body.applyImpulse(CGVector(dx: 0, dy: jumpStrength))
+    }
+    
+    func resetJump() {
+        isJumping = false
     }
 }
 
