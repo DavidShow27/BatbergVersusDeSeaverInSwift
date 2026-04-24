@@ -5,18 +5,13 @@
 //  Created by DIEGO CHAVEZ on 4/21/26.
 //
 
-import SwiftUI
 import SpriteKit
+import SwiftUI
 
 struct TitleView: View {
-    var scene: SKScene {
-        let scene = GameScene()
-        scene.size = CGSize(width: 300, height: 400)
-        scene.scaleMode = .fill
-        return scene
-    }
+    @State var showGame = false
     var body: some View {
-        NavigationStack {
+        
             ZStack {
                 Color.orange.ignoresSafeArea()
 
@@ -24,7 +19,9 @@ struct TitleView: View {
                     Text("Batberg VS De Seaver")
                         .font(.custom("MortalKombat-Regular", size: 30))
 
-                    NavigationLink(destination: GameView()) {
+                    Button {
+                        showGame = true
+                    } label: {
                         ZStack {
                             Rectangle()
                                 .frame(width: 200, height: 50)
@@ -32,12 +29,15 @@ struct TitleView: View {
 
                             Text("START GAME")
                                 .font(.custom("MortalKombat-Regular", size: 10))
-                                .foregroundStyle(.white)
+                                .foregroundColor(.white)
                         }
                     }
                 }
             }
-        }
+            .fullScreenCover(isPresented: $showGame) {
+                GameViewControllerRepresentable()
+            }
+        
     }
     init() {
         for familyName in UIFont.familyNames {

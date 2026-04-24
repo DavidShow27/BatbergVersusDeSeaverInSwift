@@ -44,7 +44,10 @@ class GameViewController: UIViewController {
     override var prefersStatusBarHidden: Bool {
         return true
     }
-    
+        
+    override var shouldAutorotate: Bool {
+        return true
+    }
     
     @IBAction func jumpAction(_ sender: Any) {
     }

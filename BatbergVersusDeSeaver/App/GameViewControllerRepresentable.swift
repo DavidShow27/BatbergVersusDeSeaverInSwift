@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-struct GameViewControllerRepresentable: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+struct GameViewControllerRepresentable: UIViewControllerRepresentable {
+    
+    func makeUIViewController(context: Context) -> GameViewController {
+        return GameViewController()
     }
-}
-
-#Preview {
-    GameViewControllerRepresentable()
+    
+    func updateUIViewController(_ uiViewController: GameViewController, context: Context) {}
 }
