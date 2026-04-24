@@ -6,12 +6,21 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct GameViewControllerRepresentable: UIViewControllerRepresentable {
     
     func makeUIViewController(context: Context) -> GameViewController {
-        return GameViewController()
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        
+        return storyboard.instantiateViewController(
+            withIdentifier: "GameViewController"
+        ) as! GameViewController
     }
     
-    func updateUIViewController(_ uiViewController: GameViewController, context: Context) {}
+    func updateUIViewController(
+        _ uiViewController: GameViewController,
+        context: Context
+    ) {
+    }
 }
