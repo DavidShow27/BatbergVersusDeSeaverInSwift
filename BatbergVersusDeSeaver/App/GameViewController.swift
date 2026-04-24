@@ -33,8 +33,6 @@ class GameViewController: UIViewController {
             view.showsNodeCount = true
         }
         
-        gameScene as? GameScene
-        
         let value = UIInterfaceOrientation.landscapeLeft.rawValue
         UIDevice.current.setValue(value, forKey: "orientation")
     }
@@ -47,7 +45,6 @@ class GameViewController: UIViewController {
         return true
     }
     
-    
     @IBAction func jumpAction(_ sender: Any) {
         player.component(ofType: JumpComponent.self)?.jump()
     }
@@ -56,9 +53,11 @@ class GameViewController: UIViewController {
     }
     
     @IBAction func leftAction(_ sender: Any) {
+        player.component(ofType: MovementComponent.self)?.left()
     }
     
     @IBAction func rightAction(_ sender: Any) {
+        player.component(ofType: MovementComponent.self)?.right()
     }
 }
 

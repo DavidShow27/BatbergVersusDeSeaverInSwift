@@ -54,9 +54,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         cam.position.x = player.component(ofType: SpriteComponent.self)?.node.position.x ?? 0
         cam.position.y = player.component(ofType: SpriteComponent.self)?.node.position.y ?? 0
     }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        player.component(ofType: JumpComponent.self)?.jump()
-    }
 }
 
