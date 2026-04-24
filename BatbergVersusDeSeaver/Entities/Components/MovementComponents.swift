@@ -17,6 +17,14 @@ class MovementComponent: GKComponent {
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
         node.position.x += direction.dx * magnitude * CGFloat(seconds)
     }
+    
+    func left() {
+        direction = CGVectorMake(-1, 0)
+    }
+    
+    func right() {
+        direction = CGVectorMake(1, 0)
+    }
 }
 
 class JumpComponent: GKComponent {

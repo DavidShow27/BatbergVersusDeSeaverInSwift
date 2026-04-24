@@ -59,9 +59,11 @@ class GameViewController: UIViewController {
     }
     
     @IBAction func leftAction(_ sender: Any) {
+        player.component(ofType: MovementComponent.self)?.left()
     }
     
     @IBAction func rightAction(_ sender: Any) {
+        player.component(ofType: MovementComponent.self)?.right()
     }
 }
 
