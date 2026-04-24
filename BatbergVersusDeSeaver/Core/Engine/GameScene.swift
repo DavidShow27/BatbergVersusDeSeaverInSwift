@@ -19,10 +19,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var player = Player()
     
+    let cam = SKCameraNode()
+    
     //on scene load
     override func didMove(to view: SKView) {
         
-        addChild(makeFLoor(size: CGSize(width: 200, height: 20), position: CGPoint(x: 0, y: -20)))
+        //addChild(makeFLoor(size: CGSize(width: 200, height: 20), position: CGPoint(x: 50, y: -50)))
         
         wall1R = SKSpriteNode(imageNamed: wallImage)
         
@@ -48,6 +50,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         player.component(ofType: MovementComponent.self)?.update(deltaTime: 1/60)
         player.component(ofType: JumpComponent.self)?.update(deltaTime: 1/60)
+        
+        cam.position.x = player.component(ofType: SpriteComponent.self)?.node.position.x ?? 0
+        cam.position.y = player.component(ofType: SpriteComponent.self)?.node.position.y ?? 0
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
