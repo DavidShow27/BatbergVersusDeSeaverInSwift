@@ -21,33 +21,51 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let cam = SKCameraNode()
     
+    let joyStick = Joystick(size: 100)
+    
     //on scene load
     override func didMove(to view: SKView) {
         
         //addChild(makeFLoor(size: CGSize(width: 200, height: 20), position: CGPoint(x: 50, y: -50)))
         
+        physicsWorld.contactDelegate = self
+        
         wall1R = SKSpriteNode(imageNamed: wallImage)
         
         if let node = player.component(ofType: SpriteComponent.self)?.node {
-            node.position = (CGPoint(x: frame.midX, y: frame.midY))
             if node.parent == nil {
+                node.position = (CGPoint(x: frame.midX, y: frame.midY))
                 addChild(node)
             }
         }
         
-        addChild(cam)
-        self.camera = cam
+        if cam.parent == nil {
+            addChild(cam)
+            self.camera = cam
+        }
+        
+        joyStick.position = CGPoint(x: frame.midX - 500, y: frame.midY)
+        addChild(joyStick)
+        
     }
     
     //before each frame
     override func update(_ currentTime: TimeInterval) {
         player.update(deltaTime: 1/60)
-        player.component(ofType: MovementComponent.self)?.update(deltaTime: 1/60)
-        player.component(ofType: JumpComponent.self)?.update(deltaTime: 1/60)
         
-        cam.position.x = player.component(ofType: SpriteComponent.self)?.node.position.x ?? 0
-        cam.position.y = player.component(ofType: SpriteComponent.self)?.node.position.y ?? 0
+        guard let xPos = player.component(ofType: SpriteComponent.self)?.node.position.x else { return }
+        guard let yPos = player.component(ofType: SpriteComponent.self)?.node.position.y else { return }
         
+        cam.position.x =  xPos
+        cam.position.y = yPos
+        
+        joyStick.position.x = xPos - (size.width / 3)
+        joyStick.position.y = yPos - (size.height / 4)
+    }
+    
+    // Contact
+    func didBegin(_ contact: SKPhysicsContact) {
+        player.component(ofType: JumpComponent.self)?.isJumping = false
     }
     
     func makeFLoor(size: CGSize, position: CGPoint) -> SKSpriteNode{

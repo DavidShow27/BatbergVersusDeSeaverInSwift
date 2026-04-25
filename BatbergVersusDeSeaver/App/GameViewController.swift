@@ -14,7 +14,6 @@ class GameViewController: UIViewController {
     var gameScene: GameScene!
 
     var player = Player.shared
-
     
     @IBOutlet weak var leftButton: UIButton!
     @IBOutlet weak var rightButton: UIButton!
@@ -26,16 +25,13 @@ class GameViewController: UIViewController {
             // Load the SKScene from 'GameScene.sks'
             if let scene = SKScene(fileNamed: "GameScene") as? GameScene {
                 gameScene = scene
-                // Set the scale mode to scale to fit the window
                 scene.scaleMode = .aspectFill
-                // Present the scene
                 view.presentScene(scene)
+                
+                view.ignoresSiblingOrder = true
+                view.showsFPS = true
+                view.showsNodeCount = true
             }
-
-            view.ignoresSiblingOrder = true
-
-            view.showsFPS = true
-            view.showsNodeCount = true
         }
 
         let value = UIInterfaceOrientation.landscapeLeft.rawValue
@@ -79,7 +75,7 @@ class GameViewController: UIViewController {
     @objc func leftReleased() {
         player.component(ofType: MovementComponent.self)?.stop()
     }
-
+    // Assign targets to the buttons, like on or off
     func buttonStuff() {
         rightButton.addTarget(
             self,
@@ -96,7 +92,6 @@ class GameViewController: UIViewController {
             action: #selector(rightReleased),
             for: .touchUpOutside
         )
-        
         leftButton.addTarget(
             self,
             action: #selector(leftPressed),
@@ -113,5 +108,4 @@ class GameViewController: UIViewController {
             for: .touchUpOutside
         )
     }
-    
 }

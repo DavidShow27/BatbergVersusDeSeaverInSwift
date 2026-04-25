@@ -17,7 +17,14 @@ class Player: GKEntity {
         addComponent(SpriteComponent(imageName: "BatBergPlaceHolder"))
         addComponent(MovementComponent())
         addComponent(JumpComponent())
+        addComponent(GroundPoundComponent())
+        addComponent(CrouchComponent())
         
+        if let node = self.component(ofType: SpriteComponent.self)?.node.physicsBody {
+            node.restitution = 0.0
+            node.categoryBitMask = 1
+            node.contactTestBitMask = 1
+        }
     }
     
     // This is only for the SpriteKit because it is Objective-C
