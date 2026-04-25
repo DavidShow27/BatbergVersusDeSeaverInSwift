@@ -18,13 +18,12 @@ class Joystick: SKNode {
     var innerRadius: CGFloat
 
     var velocity: CGVector
-
     var player = Player.shared
 
     init(size: CGFloat) {
 
         outerRadius = size
-        innerRadius = size / 4
+        innerRadius = size / 2
         velocity = .zero
 
         self.knob = SKShapeNode(circleOfRadius: innerRadius)

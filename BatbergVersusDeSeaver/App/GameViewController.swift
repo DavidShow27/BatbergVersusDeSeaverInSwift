@@ -15,9 +15,6 @@ class GameViewController: UIViewController {
 
     var player = Player.shared
     
-    @IBOutlet weak var leftButton: UIButton!
-    @IBOutlet weak var rightButton: UIButton!
-    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -36,8 +33,6 @@ class GameViewController: UIViewController {
 
         let value = UIInterfaceOrientation.landscapeLeft.rawValue
         UIDevice.current.setValue(value, forKey: "orientation")
-
-        buttonStuff()
     }
 
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
@@ -53,59 +48,15 @@ class GameViewController: UIViewController {
     }
 
     @IBAction func jumpAction(_ sender: Any) {
-        player.component(ofType: JumpComponent.self)?.jump()
+        // Check if player is Crouching
+        if player.component(ofType: CrouchComponent.self)?.isCrouching == true {
+            player.component(ofType: SlideComponent.self)?.slide()
+        } else {
+            player.component(ofType: JumpComponent.self)?.jump()
+        }
     }
 
     @IBAction func abilityAction(_ sender: Any) {
         
-    }
-    
-    @objc func rightPressed() {
-        player.component(ofType: MovementComponent.self)?.right()
-    }
-
-    @objc func rightReleased() {
-        player.component(ofType: MovementComponent.self)?.stop()
-    }
-    
-    @objc func leftPressed() {
-        player.component(ofType: MovementComponent.self)?.left()
-    }
-
-    @objc func leftReleased() {
-        player.component(ofType: MovementComponent.self)?.stop()
-    }
-    // Assign targets to the buttons, like on or off
-    func buttonStuff() {
-        rightButton.addTarget(
-            self,
-            action: #selector(rightPressed),
-            for: .touchDown
-        )
-        rightButton.addTarget(
-            self,
-            action: #selector(rightReleased),
-            for: .touchUpInside
-        )
-        rightButton.addTarget(
-            self,
-            action: #selector(rightReleased),
-            for: .touchUpOutside
-        )
-        leftButton.addTarget(
-            self,
-            action: #selector(leftPressed),
-            for: .touchDown
-        )
-        leftButton.addTarget(
-            self,
-            action: #selector(leftReleased),
-            for: .touchUpInside
-        )
-        leftButton.addTarget(
-            self,
-            action: #selector(leftReleased),
-            for: .touchUpOutside
-        )
     }
 }

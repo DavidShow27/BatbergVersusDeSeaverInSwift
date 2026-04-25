@@ -37,10 +37,7 @@ class JumpComponent: GKComponent {
     
     func jump() {
         
-        if isJumping {
-            entity?.component(ofType: GroundPoundComponent.self)?.groundPound()
-            return
-        }
+        if isJumping { return }
         
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
         guard let body = node.physicsBody else { return }
@@ -78,23 +75,29 @@ class CrouchComponent: GKComponent {
         return entity?.component(ofType: SpriteComponent.self)
     }
     
+    var body: PhysicsComponent? {
+        return entity?.component(ofType: PhysicsComponent.self)
+    }
+    
     func crouch() {
         if isCrouching { return }
         
-        guard let width = sprite?.node.size.width else { return }
-        guard let height = sprite?.node.size.height else { return }
+        guard let node = sprite?.node else { return }
 
-        sprite?.node.size = CGSize(width: width, height: height / 2)
+        sprite?.node.size = CGSize(width: node.size.width, height: node.size.height / 2)
+        body?.applyPhysics(to: node)
+        node.position.y -= (node.size.height / 2)
+        
         isCrouching = true
     }
     
     func Uncrouch() {
         if !isCrouching { return }
         
-        guard let width = sprite?.node.size.width else { return }
-        guard let height = sprite?.node.size.height else { return }
+        guard let node = sprite?.node else { return }
         
-        sprite?.node.size = CGSize(width: width, height: height * 2)
+        sprite?.node.size = CGSize(width: node.size.width, height: node.size.height * 2)
+        body?.applyPhysics(to: node)
         isCrouching = false
     }
     
@@ -105,5 +108,17 @@ class CrouchComponent: GKComponent {
 }
 
 class SlideComponent: GKComponent {
-    // to add later
+    
+    var slideStrength = 400
+    
+    func slide() {
+        guard let body = entity?.component(ofType: SpriteComponent.self)?.node.physicsBody else { return }
+        guard let dir = entity?.component(ofType: MovementComponent.self)?.velocity.dx else { return }
+        
+        if dir > 0 {
+            body.applyImpulse(CGVector(dx: slideStrength ,dy: .zero))
+        } else {
+            body.applyImpulse(CGVector(dx: -slideStrength ,dy: .zero))
+        }
+    }
 }

@@ -21,6 +21,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let cam = SKCameraNode()
     
+    
     let joyStick = Joystick(size: 100)
     
     //on scene load
