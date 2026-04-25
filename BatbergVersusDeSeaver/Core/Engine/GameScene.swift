@@ -67,6 +67,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Contact
     func didBegin(_ contact: SKPhysicsContact) {
         player.component(ofType: JumpComponent.self)?.isJumping = false
+        player.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
     }
     
     func makeFLoor(size: CGSize, position: CGPoint) -> SKSpriteNode{

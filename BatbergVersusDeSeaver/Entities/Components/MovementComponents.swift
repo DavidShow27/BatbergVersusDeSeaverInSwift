@@ -49,8 +49,10 @@ class JumpComponent: GKComponent {
 class GroundPoundComponent: GKComponent {
     
     var groundPoundStrength: CGFloat = -1000
+    var isGroundPounding: Bool = false
     
     func groundPound() {
+        if isGroundPounding { return }
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
         guard let body = node.physicsBody else { return }
         
@@ -109,7 +111,7 @@ class CrouchComponent: GKComponent {
 
 class SlideComponent: GKComponent {
     
-    var slideStrength = 400
+    var slideStrength: CGFloat = 400
     
     func slide() {
         guard let body = entity?.component(ofType: SpriteComponent.self)?.node.physicsBody else { return }

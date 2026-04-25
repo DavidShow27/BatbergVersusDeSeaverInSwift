@@ -73,9 +73,15 @@ class Joystick: SKNode {
         // Area segment of a circle
         let isInLowerSegment = angle < -0.5 && angle > -2.6
         let isNearEdge = distance > outerRadius * 0.7
+        guard let isInTheAir = player.component(ofType: JumpComponent.self)?.isJumping else { return }
 
         if isInLowerSegment && isNearEdge {
             player.component(ofType: CrouchComponent.self)?.crouch()
+            
+            if isInTheAir {
+                player.component(ofType: GroundPoundComponent.self)?.groundPound()
+            }
+            
         } else {
             player.component(ofType: CrouchComponent.self)?.Uncrouch()
         }
