@@ -55,7 +55,7 @@ class GroundPoundComponent: GKComponent {
         if isGroundPounding { return }
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
         guard let body = node.physicsBody else { return }
-        
+        isGroundPounding = true
         body.applyImpulse(CGVector(dx: 0, dy: groundPoundStrength))
     }
 }

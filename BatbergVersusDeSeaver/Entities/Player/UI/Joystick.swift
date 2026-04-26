@@ -44,6 +44,25 @@ class Joystick: SKNode {
 
         isUserInteractionEnabled = true
     }
+    
+    required init?(coder aDecoder: NSCoder) {
+        
+        outerRadius = 100
+        innerRadius = 100 / 2
+        velocity = .zero
+        
+        self.knob = SKShapeNode(circleOfRadius: outerRadius)
+        self.edge = SKShapeNode(circleOfRadius: innerRadius)
+        
+        knob.name = "knob"
+
+        knob.fillColor = .white
+        edge.fillColor = .clear
+        edge.strokeColor = .white
+        edge.lineWidth = 2.0
+        
+        super.init(coder: aDecoder)
+    }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
 
@@ -96,10 +115,6 @@ class Joystick: SKNode {
         knob.run(SKAction.move(to: .zero, duration: .zero))
         player.component(ofType: MovementComponent.self)?.velocity = .zero
         player.component(ofType: CrouchComponent.self)?.Uncrouch()
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
 }

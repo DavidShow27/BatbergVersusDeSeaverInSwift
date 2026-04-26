@@ -33,17 +33,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         wall1R = SKSpriteNode(imageNamed: wallImage)
         
-        if let node = player.component(ofType: SpriteComponent.self)?.node {
-            if node.parent == nil {
-                node.position = (CGPoint(x: frame.midX, y: frame.midY))
-                addChild(node)
-            }
-        }
-        
-        if cam.parent == nil {
-            addChild(cam)
-            self.camera = cam
-        }
+        player.component(ofType: SpriteComponent.self)?.node
+        = self.childNode(withName: "player") as! SKSpriteNode
+
+        addChild(cam)
+        self.camera = cam
         
         joyStick.position = CGPoint(x: frame.midX - 500, y: frame.midY)
         addChild(joyStick)
@@ -58,10 +52,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let yPos = player.component(ofType: SpriteComponent.self)?.node.position.y else { return }
         
         cam.position.x =  xPos
-        cam.position.y = yPos
+        cam.position.y = yPos + 100
         
         joyStick.position.x = xPos - (size.width / 3)
-        joyStick.position.y = yPos - (size.height / 4)
+        joyStick.position.y = yPos - (size.height / 8)
     }
     
     // Contact

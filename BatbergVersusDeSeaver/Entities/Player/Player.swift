@@ -13,9 +13,17 @@ class Player: GKEntity {
     static let shared = Player()
     
     override init() {
-        
         super.init()
-        
+        setUp()
+    }
+    
+    // Called when using Story-Board
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        setUp()
+    }
+    
+    private func setUp() {
         addComponent(SpriteComponent(imageName: "BatBergPlaceHolder"))
         addComponent(PhysicsComponent())
         addComponent(MovementComponent())
@@ -23,11 +31,5 @@ class Player: GKEntity {
         addComponent(GroundPoundComponent())
         addComponent(CrouchComponent())
         addComponent(SlideComponent())
-        
-    }
-    
-    // This is only for the SpriteKit because it is Objective-C
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 }
