@@ -46,17 +46,4 @@ class GameViewController: UIViewController {
     override var shouldAutorotate: Bool {
         return true
     }
-
-    @IBAction func jumpAction(_ sender: Any) {
-        // Check if player is Crouching
-        if player.component(ofType: CrouchComponent.self)?.isCrouching == true {
-            player.component(ofType: SlideComponent.self)?.slide()
-        } else {
-            player.component(ofType: JumpComponent.self)?.jump()
-        }
-    }
-
-    @IBAction func abilityAction(_ sender: Any) {
-        
-    }
 }

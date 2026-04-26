@@ -21,8 +21,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let cam = SKCameraNode()
     
-    
     let joyStick = Joystick(size: 100)
+    let actionButton = ActionButton(size: CGSize(width: 175, height: 175))
     
     //on scene load
     override func didMove(to view: SKView) {
@@ -39,8 +39,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(cam)
         self.camera = cam
         
-        joyStick.position = CGPoint(x: frame.midX - 500, y: frame.midY)
         addChild(joyStick)
+        addChild(actionButton)
         
     }
     
@@ -51,11 +51,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let xPos = player.component(ofType: SpriteComponent.self)?.node.position.x else { return }
         guard let yPos = player.component(ofType: SpriteComponent.self)?.node.position.y else { return }
         
-        cam.position.x =  xPos
+        cam.position.x = xPos
         cam.position.y = yPos + 100
         
         joyStick.position.x = xPos - (size.width / 3)
         joyStick.position.y = yPos - (size.height / 8)
+        
+        actionButton.position.x = xPos + (size.width / 3)
+        actionButton.position.y = yPos - (size.height / 8)
+        
     }
     
     // Contact

@@ -15,26 +15,6 @@
                     <view key="view" multipleTouchEnabled="YES" contentMode="scaleToFill" id="3se-qz-xqx" customClass="SKView">
                         <rect key="frame" x="0.0" y="0.0" width="852" height="393"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="RJ8-1Y-MS8" userLabel="abilityButton">
-                                <rect key="frame" x="592" y="238" width="80" height="100"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="gray" title="Ability"/>
-                                <connections>
-                                    <action selector="abilityAction:" destination="BV1-FR-VrT" eventType="touchUpInside" id="PzI-Cy-d7f"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="OvM-bk-el6" userLabel="jumpButton">
-                                <rect key="frame" x="692" y="238" width="79" height="100"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="gray" title="Jump"/>
-                                <connections>
-                                    <action selector="jumpAction:" destination="BV1-FR-VrT" eventType="touchUpInside" id="wae-YD-3Vj"/>
-                                </connections>
-                            </button>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="4qk-I5-YsI"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
