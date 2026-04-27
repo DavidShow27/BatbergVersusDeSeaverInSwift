@@ -19,6 +19,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var player = Player.shared
     
+    var enemy = Enemy.shared
+    
     let cam = SKCameraNode()
     
     let joyStick = Joystick(size: 100)
@@ -35,10 +37,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         player.component(ofType: SpriteComponent.self)?.node
         = self.childNode(withName: "player") as! SKSpriteNode
+        
+        enemy.component(ofType: SpriteComponent.self)?.node
+        = self.childNode(withName: "enemy") as! SKSpriteNode
 
         addChild(cam)
         self.camera = cam
         
+        joyStick.zPosition = 1
+        actionButton.zPosition = 1
         addChild(joyStick)
         addChild(actionButton)
         
@@ -55,6 +62,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //before each frame
     override func update(_ currentTime: TimeInterval) {
         player.update(deltaTime: 1/60)
+        enemy.update(deltaTime: 1/60)
         
         guard let xPos = player.component(ofType: SpriteComponent.self)?.node.position.x else { return }
         guard let yPos = player.component(ofType: SpriteComponent.self)?.node.position.y else { return }
@@ -74,6 +82,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         player.component(ofType: JumpComponent.self)?.isJumping = false
         player.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
+        
+        enemy.component(ofType: JumpComponent.self)?.isJumping = false
+        enemy.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
+        
     }
     
     func makeFLoor(size: CGSize, position: CGPoint) -> SKSpriteNode{

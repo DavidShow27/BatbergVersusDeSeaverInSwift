@@ -6,31 +6,29 @@
 //
 
 import Foundation
+import GameplayKit
 
-class Enemy {
+class Enemy: GKEntity {
     
-    var name: String
-    //Stats
-    var health: Int
-    var speed: Double
-    var dmg: Int
-    var ability: Bool
+    static let shared = Enemy()
     
-    var image: String
-    //Movement(Same as player)
-    enum direction {
-        case up
-        case down
-        case left
-        case right
+    override init() {
+        super.init()
+        setUp()
     }
-    //Init
-    init(name: String, health: Int, speed: Double, dmg: Int, ability: Bool, image: String) {
-        self.name = name
-        self.health = health
-        self.speed = speed
-        self.dmg = dmg
-        self.ability = ability
-        self.image = image
+    
+    // Called when using Story-Board
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        setUp()
+    }
+    
+    private func setUp() {
+        addComponent(SpriteComponent(imageName: "BatBergPlaceHolder"))
+        addComponent(MovementComponent())
+        addComponent(PhysicsComponent())
+        addComponent(JumpComponent())
+        addComponent(GroundPoundComponent())
+        addComponent(FollowEntityComponent(who: Player.shared))
     }
 }
