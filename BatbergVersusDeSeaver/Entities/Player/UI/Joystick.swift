@@ -103,9 +103,16 @@ class Joystick: SKNode {
         } else {
             player.component(ofType: CrouchComponent.self)?.Uncrouch()
         }
+        
         velocity = CGVector(dx: knob.position.x * 5, dy: knob.position.y * 5)
 
         player.component(ofType: MovementComponent.self)?.velocity = velocity
+        
+        if velocity.dx > 0 {
+            player.component(ofType: SpriteComponent.self)?.node.xScale = 1
+        } else if velocity.dx < 0 {
+            player.component(ofType: SpriteComponent.self)?.node.xScale = -1
+        }
 
     }
     

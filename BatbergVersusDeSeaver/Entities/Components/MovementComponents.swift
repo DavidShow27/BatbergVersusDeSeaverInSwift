@@ -11,18 +11,25 @@ import GameplayKit
 class MovementComponent: GKComponent {
     
     var velocity: CGVector = .zero
+    var speedRecuction: CGFloat = 1
+    
+    var sprite: SpriteComponent? {
+        entity?.component(ofType: SpriteComponent.self)
+    }
     
     override func update(deltaTime seconds: TimeInterval) {
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
-        node.position.x += velocity.dx * CGFloat(seconds)
+        node.position.x += velocity.dx * speedRecuction * CGFloat(seconds)
     }
     
     func left() {
         velocity = CGVectorMake(-1, 0)
+        sprite?.node.xScale = -1
     }
     
     func right() {
         velocity = CGVectorMake(1, 0)
+        sprite?.node.xScale = 1
     }
     
     func stop() {
@@ -81,6 +88,10 @@ class CrouchComponent: GKComponent {
         return entity?.component(ofType: PhysicsComponent.self)
     }
     
+    var movement: MovementComponent? {
+        return entity?.component(ofType: MovementComponent.self)
+    }
+    
     func crouch() {
         if isCrouching { return }
         
@@ -88,6 +99,7 @@ class CrouchComponent: GKComponent {
 
         sprite?.node.size = CGSize(width: node.size.width, height: node.size.height / 2)
         body?.applyPhysics(to: node)
+        movement?.speedRecuction = 0.3
         node.position.y -= (node.size.height / 2)
         
         isCrouching = true
@@ -100,6 +112,8 @@ class CrouchComponent: GKComponent {
         
         sprite?.node.size = CGSize(width: node.size.width, height: node.size.height * 2)
         body?.applyPhysics(to: node)
+        movement?.speedRecuction = 1
+        
         isCrouching = false
     }
     

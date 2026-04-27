@@ -24,7 +24,7 @@ class Player: GKEntity {
     }
     
     private func setUp() {
-        addComponent(SpriteComponent(imageName: "BatBergPlaceHolder"))
+        addComponent(SpriteComponent(imageName: "NewBatberg"))
         addComponent(PhysicsComponent())
         addComponent(MovementComponent())
         addComponent(JumpComponent())
