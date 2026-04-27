@@ -42,6 +42,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(joyStick)
         addChild(actionButton)
         
+        joyStick.onCrouchChanged = { isCrouching in
+            if isCrouching {
+                self.actionButton.label.text = "slide"
+            } else {
+                self.actionButton.label.text = "jump"
+            }
+        }
+        
     }
     
     //before each frame
@@ -55,10 +63,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         cam.position.y = yPos + 100
         
         joyStick.position.x = xPos - (size.width / 3)
-        joyStick.position.y = yPos - (size.height / 8)
+        joyStick.position.y = yPos - (size.height / 10)
         
         actionButton.position.x = xPos + (size.width / 3)
-        actionButton.position.y = yPos - (size.height / 8)
+        actionButton.position.y = yPos - (size.height / 10)
         
     }
     

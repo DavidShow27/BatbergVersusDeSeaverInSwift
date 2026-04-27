@@ -72,7 +72,7 @@ class DoubleJumpComponent {
 }
 
 class CrouchComponent: GKComponent {
-    
+
     var isCrouching: Bool
     
     override init() {

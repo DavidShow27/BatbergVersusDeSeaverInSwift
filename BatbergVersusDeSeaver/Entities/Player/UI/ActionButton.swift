@@ -12,11 +12,6 @@ class ActionButton: SKNode {
 
     var player = Player.shared
     
-    enum text: String {
-        case jump
-        case slide
-    }
-    
     var label: SKLabelNode
     private var backGround: SKShapeNode
 
@@ -25,13 +20,15 @@ class ActionButton: SKNode {
         backGround.fillColor = .clear
         backGround.strokeColor = .white
         backGround.lineWidth = 2
-        label = SKLabelNode(text: text.jump.rawValue)
+        label = SKLabelNode(text: "jump")
+        label.fontName = "MortalKombat-Regular"
         label.fontSize = 48
         label.fontColor = .white
         super.init()
         isUserInteractionEnabled = true
         addChild(backGround)
         addChild(label)
+        label.position.y = backGround.frame.midY - 10
     }
 
     required init?(coder: NSCoder) {
@@ -39,7 +36,8 @@ class ActionButton: SKNode {
         backGround.fillColor = .clear
         backGround.strokeColor = .white
         backGround.lineWidth = 10
-        label = SKLabelNode(text: text.jump.rawValue)
+        label = SKLabelNode(text: "jump")
+        label.fontName = "MortalKombat-Regular"
         label.fontSize = 48
         label.fontColor = .white
         super.init(coder: coder)

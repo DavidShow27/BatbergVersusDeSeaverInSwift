@@ -19,6 +19,9 @@ class Joystick: SKNode {
 
     var velocity: CGVector
     var player = Player.shared
+    
+    // ONLY for the actionButton
+    var onCrouchChanged: ((Bool) -> Void)?
 
     init(size: CGFloat) {
 
@@ -93,21 +96,24 @@ class Joystick: SKNode {
         let isInLowerSegment = angle < -0.5 && angle > -2.6
         let isNearEdge = distance > outerRadius * 0.7
         guard let isInTheAir = player.component(ofType: JumpComponent.self)?.isJumping else { return }
+        guard let crouching = player.component(ofType: CrouchComponent.self)?.isCrouching else { return }
 
         if isInLowerSegment && isNearEdge {
             player.component(ofType: CrouchComponent.self)?.crouch()
             if isInTheAir {
                 player.component(ofType: GroundPoundComponent.self)?.groundPound()
             }
-            
         } else {
             player.component(ofType: CrouchComponent.self)?.Uncrouch()
         }
+        
+        onCrouchChanged?(crouching)
         
         velocity = CGVector(dx: knob.position.x * 5, dy: knob.position.y * 5)
 
         player.component(ofType: MovementComponent.self)?.velocity = velocity
         
+        // Change Sprite direction depending on velocity
         if velocity.dx > 0 {
             player.component(ofType: SpriteComponent.self)?.node.xScale = 1
         } else if velocity.dx < 0 {
@@ -120,6 +126,9 @@ class Joystick: SKNode {
         knob.run(SKAction.move(to: .zero, duration: .zero))
         player.component(ofType: MovementComponent.self)?.velocity = .zero
         player.component(ofType: CrouchComponent.self)?.Uncrouch()
+        
+        guard let crouching = player.component(ofType: CrouchComponent.self)?.isCrouching else { return }
+        onCrouchChanged?(crouching)
     }
 
 }
