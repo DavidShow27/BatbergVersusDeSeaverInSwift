@@ -25,10 +25,12 @@ class Enemy: GKEntity {
     
     private func setUp() {
         addComponent(SpriteComponent(imageName: "BatBergPlaceHolder"))
-        addComponent(MovementComponent())
         addComponent(PhysicsComponent())
+        addComponent(MovementComponent())
         addComponent(JumpComponent())
         addComponent(GroundPoundComponent())
         addComponent(FollowEntityComponent(who: Player.shared))
+        addComponent(RadiusComponent(visionRadius: 600, attackRadius: 200))
     }
+    
 }
