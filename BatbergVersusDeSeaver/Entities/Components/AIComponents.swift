@@ -33,10 +33,7 @@ class FollowEntityComponent: GKComponent {
 
     func followEntity(who: GKEntity) {
 
-        guard
-            let whoPosition = who.component(ofType: SpriteComponent.self)?.node
-                .position
-        else { return }
+        guard let whoPosition = who.component(ofType: SpriteComponent.self)?.node.position else { return }
         guard let selfPosition = sprite?.node.position else { return }
 
         let direction: CGPoint = CGPoint(
@@ -50,6 +47,22 @@ class FollowEntityComponent: GKComponent {
 
         velocity = CGVector(dx: 400 * normalX, dy: normalY * 400)
 
+    }
+    
+    func fleeEntity(who: GKEntity) {
+        guard let whoPosition = who.component(ofType: SpriteComponent.self)?.node.position else { return }
+        guard let selfPosition = sprite?.node.position else { return }
+
+        let direction: CGPoint = CGPoint(
+            x: selfPosition.x - whoPosition.x,
+            y: selfPosition.y - whoPosition.y
+        )
+        let length = sqrt(direction.x * direction.x + direction.y * direction.y)
+
+        let normalX = direction.x / length
+        let normalY = direction.y / length
+
+        velocity = CGVector(dx: 400 * normalX, dy: normalY * 400)
     }
 
     override func update(deltaTime seconds: TimeInterval) {
@@ -118,8 +131,42 @@ class RadiusComponent: GKComponent {
         return pythag <= visionRange.frame.size.width / 2
     }
     
-    func isInAttackRangeOfPlayer() {
-        
+    func isInAttackRangeOfPlayer(playerPosition: CGPoint) -> Bool {
+        guard let enemyPos = sprite?.node.position else { return false }
+        let dx = playerPosition.x - enemyPos.x
+        let dy = playerPosition.y - enemyPos.y
+        let pythag = sqrt(dx * dx + dy * dy)
+        return pythag <= visionRange.frame.size.width / 2
     }
 
+}
+
+class AgentComponent : GKComponent, GKAgentDelegate {
+    let agent: GKAgent2D
+    
+    init(agent: GKAgent2D) {
+        self.agent = agent
+        super.init()
+        agent.delegate = self
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func agentWillUpdate(_ agent: GKAgent) {
+        guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
+        self.agent.position = SIMD2<Float>(
+            Float(node.position.y),
+            Float(node.position.x)
+        )
+    }
+    
+    func agentDidUpdate(_ agent: GKAgent) {
+        guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
+        node.position = CGPoint(
+            x: CGFloat(self.agent.position.x),
+            y: CGFloat(self.agent.position.y)
+        )
+    }
 }

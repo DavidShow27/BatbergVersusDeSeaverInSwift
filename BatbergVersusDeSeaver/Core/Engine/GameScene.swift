@@ -26,6 +26,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let joyStick = Joystick(size: 100)
     let actionButton = ActionButton(size: CGSize(width: 175, height: 175))
     
+    lazy var agentSystem: GKComponentSystem = {
+        GKComponentSystem(componentClass: AgentComponent.self)
+    }()
+    
     //on scene load
     override func didMove(to view: SKView) {
         
@@ -63,6 +67,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         player.update(deltaTime: 1/60)
         enemy.update(deltaTime: 1/60)
+        agentSystem.update(deltaTime: 1.0/60.0)
         
         guard let xPos = player.component(ofType: SpriteComponent.self)?.node.position.x else { return }
         guard let yPos = player.component(ofType: SpriteComponent.self)?.node.position.y else { return }
