@@ -35,8 +35,21 @@ class Enemy: GKEntity {
         addComponent(JumpComponent())
         addComponent(GroundPoundComponent())
         addComponent(FollowEntityComponent(who: Player.shared))
-        addComponent(RadiusComponent(visionRadius: 600, attackRadius: 200))
-        addComponent(HealthComponent(health: 1))
+        addComponent(AttackEntityComponent(who: Player.shared))
+        
+        stateMachine = GKStateMachine(states: [
+            IdleState(entity: self),
+            ChaseState(entity: self),
+            AttackState(entity: self),
+            FleeState(entity: self)
+        ])
+        
+        stateMachine.enter(IdleState.self)
+    }
+    
+    override func update(deltaTime seconds: TimeInterval) {
+        super.update(deltaTime: seconds)
+        stateMachine.update(deltaTime: seconds)
     }
     
 }
