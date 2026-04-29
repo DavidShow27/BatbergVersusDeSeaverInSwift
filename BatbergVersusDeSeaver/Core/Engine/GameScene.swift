@@ -21,6 +21,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var grapple: Grapple!
     var grappleSprite: SKSpriteNode!
 
+
     let cam = SKCameraNode()
 
     let joyStick = Joystick(size: 100)
@@ -33,31 +34,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         physicsWorld.contactDelegate = self
 
-        wall1R = SKSpriteNode(imageNamed: wallImage)
-
-        player.component(ofType: SpriteComponent.self)?.node =
-            self.childNode(withName: "player") as! SKSpriteNode
-        player.addComponent(grapple)
-        if let sprite = Player.shared.component(ofType: SpriteComponent.self)?
-            .node
-        {
-            let position = sprite.position
-            grappleSprite = SKSpriteNode(imageNamed: "grapple")
-            grappleSprite.position = position
-            grappleSprite.isHidden = true
-
-            grapple = Grapple(
-                velocity: .zero,
-                playerPosition: position,
+        
+        player.component(ofType: SpriteComponent.self)?.node
+        = self.childNode(withName: "player") as! SKSpriteNode
+        
+        enemy.component(ofType: SpriteComponent.self)?.node
+        = self.childNode(withName: "enemy") as! SKSpriteNode
                 ground: 100
             )
 
-        }
+        
+        joyStick.zPosition = 1
+        actionButton.zPosition = 1
         addChild(grappleSprite)
 
         addChild(cam)
         self.camera = cam
 
+        joyStick.zPosition = 1
+        actionButton.zPosition = 1
         addChild(joyStick)
         addChild(actionButton)
 
@@ -71,19 +66,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     }
 
-    //before each frame
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
+        player.update(deltaTime: 1/60)
+        enemy.update(deltaTime: 1/60)
         
-    }
-    
-    override func update(_ currentTime: TimeInterval) {
-        player.update(deltaTime: 1 / 60)
-        grapple.update(deltaTime: 1 / 60)
-        grappleSprite.position = grapple.grapplePosition
-
-        guard
-            let xPos = player.component(ofType: SpriteComponent.self)?.node
+        guard let xPos = player.component(ofType: SpriteComponent.self)?.node.position.x else { return }
+        guard let yPos = player.component(ofType: SpriteComponent.self)?.node.position.y else { return }
+        
                 .position.x
         else { return }
         guard
@@ -98,8 +86,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         joyStick.position.y = yPos - (size.height / 10)
 
         actionButton.position.x = xPos + (size.width / 3)
-        actionButton.position.y = yPos - (size.height / 10)
-
+        player.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
+        
+        enemy.component(ofType: JumpComponent.self)?.isJumping = false
+        enemy.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
+        
     }
 
     // Contact
