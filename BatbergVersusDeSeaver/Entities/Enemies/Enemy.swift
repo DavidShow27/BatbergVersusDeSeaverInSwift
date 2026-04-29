@@ -31,6 +31,7 @@ class Enemy: GKEntity {
         addComponent(GroundPoundComponent())
         addComponent(FollowEntityComponent(who: Player.shared))
         addComponent(RadiusComponent(visionRadius: 600, attackRadius: 200))
+        addComponent(HealthComponent(health: 1))
     }
     
 }
