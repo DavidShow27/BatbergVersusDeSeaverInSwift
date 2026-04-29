@@ -35,6 +35,7 @@ class Enemy: GKEntity {
         addComponent(JumpComponent())
         addComponent(GroundPoundComponent())
         addComponent(FollowEntityComponent(who: Player.shared))
+        addComponent(AttackEntityComponent(who: Player.shared))
         
         stateMachine = GKStateMachine(states: [
             IdleState(entity: self),

@@ -104,11 +104,19 @@ class AttackState: GKState {
     }
     
     override func didEnter(from previousState: GKState?) {
-        //entity?.component(ofType: AttackComponent.self)?.attack()
+        entity?.component(ofType: AttackEntityComponent.self)?.attack = true
+    }
+    
+    override func update(deltaTime seconds: TimeInterval) {
+        entity?.component(ofType: JumpComponent.self)?.jump()
+    }
+    
+    override func willExit(to nextState: GKState) {
+        entity?.component(ofType: AttackEntityComponent.self)?.attack = false
     }
     
     override func isValidNextState(_ stateClass: AnyClass) -> Bool {
-        return stateClass == ChaseState.self || stateClass == FleeState.self
+        return stateClass == ChaseState.self || stateClass == FleeState.self || stateClass == IdleState.self
     }
 }
 
@@ -126,6 +134,6 @@ class FleeState: GKState {
     }
     
     override func isValidNextState(_ stateClass: AnyClass) -> Bool {
-        return stateClass == IdleState.self
+        return stateClass == IdleState.self || stateClass == ChaseState.self
     }
 }

@@ -80,11 +80,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // Contact
     func didBegin(_ contact: SKPhysicsContact) {
-        player.component(ofType: JumpComponent.self)?.isJumping = false
-        player.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
         
-        enemy.component(ofType: JumpComponent.self)?.isJumping = false
-        enemy.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
+        for contact in [contact.bodyA, contact.bodyB] {
+            
+            if contact.node?.name == "enemy" && contact.node?.name == "floor" {
+                enemy.component(ofType: JumpComponent.self)?.isJumping = false
+                enemy.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
+            }
+            
+            if contact.node?.name == "player" && contact.node?.name == "floor" {
+                player.component(ofType: JumpComponent.self)?.isJumping = false
+                player.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
+            }
+            
+        }
         
     }
     
