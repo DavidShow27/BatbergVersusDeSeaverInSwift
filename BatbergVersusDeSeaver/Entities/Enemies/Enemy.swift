@@ -8,9 +8,14 @@
 import Foundation
 import GameplayKit
 
+// Will change name to EnemyEntity once completed
+// Then every enemy will inherit from this
+// treat this like an abstract class
 class Enemy: GKEntity {
     
     static let shared = Enemy()
+    
+    var stateMachine : GKStateMachine!
     
     override init() {
         super.init()
