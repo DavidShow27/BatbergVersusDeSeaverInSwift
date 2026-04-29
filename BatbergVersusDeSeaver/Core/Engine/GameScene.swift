@@ -73,8 +73,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     //before each frame
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?){
+        
+    }
+    
     override func update(_ currentTime: TimeInterval) {
         player.update(deltaTime: 1 / 60)
+        grapple.update(deltaTime: 1 / 60)
+        grappleSprite.position = grapple.grapplePosition
 
         guard
             let xPos = player.component(ofType: SpriteComponent.self)?.node
