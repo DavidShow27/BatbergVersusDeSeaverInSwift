@@ -57,7 +57,7 @@ class JumpComponent: GKComponent {
 
 class GroundPoundComponent: GKComponent {
 
-    var groundPoundStrength: CGFloat = -1000
+    var groundPoundStrength: CGFloat = -500
     var isGroundPounding: Bool = false
 
     func groundPound() {

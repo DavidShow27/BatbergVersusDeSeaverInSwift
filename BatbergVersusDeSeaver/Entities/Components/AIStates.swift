@@ -143,9 +143,9 @@ class AttackState: GKState {
         case .bottom:
             entity.component(ofType: SlideComponent.self)?.slide()
         case .left:
-            break
+            entity.component(ofType: JumpComponent.self)?.jump()
         case .right:
-            break
+            entity.component(ofType: JumpComponent.self)?.jump()
         }
 
     }
