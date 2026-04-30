@@ -27,19 +27,6 @@ class SpriteComponent: GKComponent {
 
 class PhysicsComponent: GKComponent {
 
-    func applyPhysics(to node: SKSpriteNode) {
-        let currentVelocity = node.physicsBody?.velocity ?? .zero
-        node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
-        node.physicsBody?.allowsRotation = false
-        node.physicsBody?.restitution = 0.0
-        node.physicsBody?.friction = 0.5
-        node.physicsBody?.velocity = currentVelocity
-        assignCategories(to: node)
-
-        node.physicsBody?.contactTestBitMask = 0xFFFF_FFFF  // report ALL contacts
-        node.physicsBody?.collisionBitMask = 0xFFFF_FFFF  // collide with everything
-    }
-
     override func didAddToEntity() {
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node
         else { return }
@@ -47,6 +34,20 @@ class PhysicsComponent: GKComponent {
         node.physicsBody?.allowsRotation = false
         node.physicsBody?.restitution = 0.0
         node.physicsBody?.friction = 0.5
+
+        assignCategories(to: node)
+
+        node.physicsBody?.contactTestBitMask = 0xFFFF_FFFF  // report ALL contacts
+        node.physicsBody?.collisionBitMask = 0xFFFF_FFFF  // collide with everything
+    }
+    
+    func applyPhysics(to node: SKSpriteNode) {
+        let currentVelocity = node.physicsBody?.velocity ?? .zero
+        node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
+        node.physicsBody?.allowsRotation = false
+        node.physicsBody?.restitution = 0.0
+        node.physicsBody?.friction = 0.5
+        node.physicsBody?.velocity = currentVelocity
         assignCategories(to: node)
 
         node.physicsBody?.contactTestBitMask = 0xFFFF_FFFF  // report ALL contacts

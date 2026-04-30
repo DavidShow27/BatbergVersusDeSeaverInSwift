@@ -88,10 +88,6 @@ class AttackEntityComponent : GKComponent {
         return entity?.component(ofType: SpriteComponent.self)
     }
 
-    var move: MovementComponent? {
-        return entity?.component(ofType: MovementComponent.self)
-    }
-
     var who: GKEntity
     var velocity: CGVector = .zero
     var attack = false
@@ -109,19 +105,16 @@ class AttackEntityComponent : GKComponent {
         
         guard let whoPosition = who.component(ofType: SpriteComponent.self)?.node.position else { return }
         guard let selfPosition = sprite?.node.position else { return }
-
-        let direction: CGPoint = CGPoint(
-            x: selfPosition.x - whoPosition.x,
-            y: selfPosition.y - whoPosition.y
-        )
-        let length = sqrt(direction.x * direction.x + direction.y * direction.y)
-
-        let normalX = direction.x / length
-        let normalY = direction.y / length
-
-        velocity = CGVector(dx: 400 * normalX, dy: normalY * 400)
         
-        entity?.component(ofType: JumpComponent.self)?.jump()
+        let XDiff = abs(selfPosition.x - whoPosition.x)
+
+        if selfPosition.y > whoPosition.y && XDiff < 50  {
+            entity?.component(ofType: GroundPoundComponent.self)?.groundPound()
+            entity?.component(ofType: CrouchComponent.self)?.crouch()
+        } else {
+            entity?.component(ofType: JumpComponent.self)?.jump()
+            entity?.component(ofType: CrouchComponent.self)?.Uncrouch()
+        }
         
     }
     

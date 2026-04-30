@@ -13,6 +13,8 @@ import GameplayKit
 // treat this like an abstract class
 class Enemy: GKEntity {
     
+    var lastCollisionSide: CollisionSide = .bottom
+    
     static let shared = Enemy()
     
     var stateMachine : GKStateMachine!
@@ -34,6 +36,8 @@ class Enemy: GKEntity {
         addComponent(MovementComponent())
         addComponent(JumpComponent())
         addComponent(GroundPoundComponent())
+        addComponent(CrouchComponent())
+        addComponent(SlideComponent())
         addComponent(FollowEntityComponent(who: Player.shared))
         addComponent(AttackEntityComponent(who: Player.shared))
         
