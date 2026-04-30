@@ -81,3 +81,47 @@ class FollowEntityComponent: GKComponent {
         }
     }
 }
+
+class AttackEntityComponent : GKComponent {
+    
+    var sprite: SpriteComponent? {
+        return entity?.component(ofType: SpriteComponent.self)
+    }
+
+    var who: GKEntity
+    var velocity: CGVector = .zero
+    var attack = false
+    
+    init(who: GKEntity) {
+        self.who = who
+        super.init()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func attackEntity(who: GKEntity) {
+        
+        guard let whoPosition = who.component(ofType: SpriteComponent.self)?.node.position else { return }
+        guard let selfPosition = sprite?.node.position else { return }
+        
+        let XDiff = abs(selfPosition.x - whoPosition.x)
+
+        if selfPosition.y > whoPosition.y && XDiff < 50  {
+            entity?.component(ofType: GroundPoundComponent.self)?.groundPound()
+            entity?.component(ofType: CrouchComponent.self)?.crouch()
+        } else {
+            entity?.component(ofType: JumpComponent.self)?.jump()
+            entity?.component(ofType: CrouchComponent.self)?.Uncrouch()
+        }
+        
+    }
+    
+    override func update(deltaTime seconds: TimeInterval) {
+        if attack {
+            attackEntity(who: who)
+        }
+    }
+    
+}

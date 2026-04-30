@@ -9,44 +9,46 @@ import Foundation
 import GameplayKit
 
 class MovementComponent: GKComponent {
-    
+
     var velocity: CGVector = .zero
     var speedRecuction: CGFloat = 1
-    
+
     var sprite: SpriteComponent? {
         entity?.component(ofType: SpriteComponent.self)
     }
-    
+
     override func update(deltaTime seconds: TimeInterval) {
-        guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
+        guard let node = entity?.component(ofType: SpriteComponent.self)?.node
+        else { return }
         node.position.x += velocity.dx * speedRecuction * CGFloat(seconds)
     }
-    
+
     func left() {
         velocity = CGVectorMake(-1, 0)
         sprite?.node.xScale = -1
     }
-    
+
     func right() {
         velocity = CGVectorMake(1, 0)
         sprite?.node.xScale = 1
     }
-    
+
     func stop() {
         velocity = .zero
     }
 }
 
 class JumpComponent: GKComponent {
-    
+
     var jumpStrength: CGFloat = 400
     var isJumping: Bool = false
-    
+
     func jump() {
-        
+
         if isJumping { return }
-        
-        guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
+
+        guard let node = entity?.component(ofType: SpriteComponent.self)?.node
+        else { return }
         guard let body = node.physicsBody else { return }
         isJumping = true
         body.applyImpulse(CGVector(dx: 0, dy: jumpStrength))
@@ -54,13 +56,14 @@ class JumpComponent: GKComponent {
 }
 
 class GroundPoundComponent: GKComponent {
-    
+
     var groundPoundStrength: CGFloat = -1000
     var isGroundPounding: Bool = false
-    
+
     func groundPound() {
         if isGroundPounding { return }
-        guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
+        guard let node = entity?.component(ofType: SpriteComponent.self)?.node
+        else { return }
         guard let body = node.physicsBody else { return }
         isGroundPounding = true
         body.applyImpulse(CGVector(dx: 0, dy: groundPoundStrength))
@@ -74,67 +77,87 @@ class DoubleJumpComponent {
 class CrouchComponent: GKComponent {
 
     var isCrouching: Bool
-    
+
     override init() {
         isCrouching = false
         super.init()
     }
-    
+
     var sprite: SpriteComponent? {
         return entity?.component(ofType: SpriteComponent.self)
     }
-    
+
     var body: PhysicsComponent? {
         return entity?.component(ofType: PhysicsComponent.self)
     }
-    
+
     var movement: MovementComponent? {
         return entity?.component(ofType: MovementComponent.self)
     }
-    
+
     func crouch() {
         if isCrouching { return }
-        
+
         guard let node = sprite?.node else { return }
 
-        sprite?.node.size = CGSize(width: node.size.width, height: node.size.height / 2)
+        sprite?.node.size = CGSize(
+            width: node.size.width,
+            height: node.size.height / 2
+        )
         body?.applyPhysics(to: node)
         movement?.speedRecuction = 0.3
         node.position.y -= (node.size.height / 2)
-        
+
         isCrouching = true
     }
-    
+
     func Uncrouch() {
         if !isCrouching { return }
-        
+
         guard let node = sprite?.node else { return }
-        
-        sprite?.node.size = CGSize(width: node.size.width, height: node.size.height * 2)
+
+        sprite?.node.size = CGSize(
+            width: node.size.width,
+            height: node.size.height * 2
+        )
         body?.applyPhysics(to: node)
         movement?.speedRecuction = 1
-        
+
         isCrouching = false
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
 }
 
 class SlideComponent: GKComponent {
-    
+
     var slideStrength: CGFloat = 400
-    
+    var isSliding: Bool = false
+
     func slide() {
+        if isSliding { return }
         guard let body = entity?.component(ofType: SpriteComponent.self)?.node.physicsBody else { return }
         guard let dir = entity?.component(ofType: MovementComponent.self)?.velocity.dx else { return }
-        
+
         if dir > 0 {
-            body.applyImpulse(CGVector(dx: slideStrength ,dy: .zero))
+            body.applyImpulse(CGVector(dx: slideStrength, dy: .zero))
         } else {
-            body.applyImpulse(CGVector(dx: -slideStrength ,dy: .zero))
+            body.applyImpulse(CGVector(dx: -slideStrength, dy: .zero))
         }
+        isSliding = true
+    }
+
+    override func update(deltaTime seconds: TimeInterval) {
+        if isSliding {
+            let velocity =
+                entity?.component(ofType: SpriteComponent.self)?.node.physicsBody?.velocity.dx ?? 0
+            if abs(velocity) < 10 {  // close enough to zero
+                isSliding = false
+            }
+        }
+
     }
 }

@@ -31,5 +31,6 @@ class Player: GKEntity {
         addComponent(GroundPoundComponent())
         addComponent(CrouchComponent())
         addComponent(SlideComponent())
+        addComponent(HealthComponent(health: 3))
     }
 }
