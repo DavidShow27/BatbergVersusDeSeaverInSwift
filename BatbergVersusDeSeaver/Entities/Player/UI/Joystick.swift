@@ -85,7 +85,6 @@ class Joystick: SKNode {
             knob.position = CGPoint(x: dx, y: dy)
         } else {
             // plug it in to x and y trig functions so that it stays in a circle
-            // ‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾\_/‾
             knob.position = CGPoint(
                 x: cos(angle) * outerRadius,
                 y: sin(angle) * outerRadius
