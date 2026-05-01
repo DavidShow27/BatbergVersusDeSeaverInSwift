@@ -29,7 +29,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     let joyStick = Joystick(size: 100)
     let actionButton = ActionButton(size: CGSize(width: 175, height: 175))
-    let topEdge = cam.position.y + (self.size.height / 2)
+    //let topEdge = cam.position.y + (self.size.height / 2)
     /*
             let bottomEdge = self.frame.minY
             let leftEdge = self.frame.minX
@@ -76,8 +76,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(joyStick)
         addChild(actionButton)
         
-        cam.addChild(joyStick)
-        cam.addChild(actionButton)
+        
 
         joyStick.onCrouchChanged = { isCrouching in
             if isCrouching {
@@ -101,7 +100,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.isPaused = true
         print("GAME OVER")
     }
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
 
@@ -116,19 +115,43 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first,
-                  let node = selectedNode,
                   let start = touchStartPoint else { return }
         let location = touch.location(in: self)
 
             let dx = location.x - start.x
             let dy = location.y - start.y
         
+        let distance = sqrt(dx*dx + dy*dy)
+        let maxDistance: CGFloat = 100
+
+        var clampedDx = dx
+        var clampedDy = dy
+
+        if distance > maxDistance {
+            let scale = maxDistance / distance
+            clampedDx *= scale
+            clampedDy *= scale
+        }
+        if let playerNode = player.component(ofType: SpriteComponent.self)?.node {
+            let position = playerNode.position
+            grapple = Grapple(velocity: CGVector(dx: clampedDx, dy: clampedDy), playerPosition: position, ground: floor1.yScale)
+        }
         
+        print("PULLING")
     }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first,
+                  let node = selectedNode,
+                  let start = touchStartPoint else { return }
+        grapple.launch(with: grapple.velocity)
+    }
+    
     //before each frame
     override func update(_ currentTime: TimeInterval) {
         player.update(deltaTime: 1 / 60)
         enemy.update(deltaTime: 1 / 60)
+        grapple.update(detalTime: 1/60)
 
         guard
             let xPos = player.component(ofType: SpriteComponent.self)?.node
