@@ -20,6 +20,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var player = Player.shared
     var grapple: Grapple!
     var grappleSprite: SKSpriteNode!
+    var selectedNode: SKSpriteNode?
+    var touchStartPoint: CGPoint?
 
     var enemy = Enemy.shared
 
@@ -27,6 +29,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     let joyStick = Joystick(size: 100)
     let actionButton = ActionButton(size: CGSize(width: 175, height: 175))
+    let topEdge = cam.position.y + (self.size.height / 2)
+    /*
+            let bottomEdge = self.frame.minY
+            let leftEdge = self.frame.minX
+            let rightEdge = self.frame.maxX*/
 
     //on scene load
     override func didMove(to view: SKView) {
@@ -44,7 +51,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if let enemyNode = self.childNode(withName: "enemy") as? SKSpriteNode {
             enemy.component(ofType: SpriteComponent.self)?.node = enemyNode
         }
+        if let sprite = player.component(ofType: SpriteComponent.self)?.node {
 
+            let position = sprite.position
+
+            grappleSprite = SKSpriteNode(imageNamed: "grapple")
+            grappleSprite.position = position
+            grappleSprite.isHidden = true
+            addChild(grappleSprite)
+
+            grapple = Grapple(
+                velocity: .zero,
+                playerPosition: position,
+                ground: 100
+            )
+
+            player.addComponent(grapple)
+        }
         addChild(cam)
         self.camera = cam
 
@@ -52,6 +75,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         actionButton.zPosition = 1
         addChild(joyStick)
         addChild(actionButton)
+        
+        cam.addChild(joyStick)
+        cam.addChild(actionButton)
 
         joyStick.onCrouchChanged = { isCrouching in
             if isCrouching {
@@ -75,7 +101,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.isPaused = true
         print("GAME OVER")
     }
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
 
+            if let node = atPoint(location) as? SKSpriteNode {
+                selectedNode = node
+                touchStartPoint = location
+
+                node.physicsBody?.isDynamic = false
+                node.physicsBody?.velocity = .zero
+            }
+        print("YOU TOUCHED ME!")
+    }
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first,
+                  let node = selectedNode,
+                  let start = touchStartPoint else { return }
+        let location = touch.location(in: self)
+
+            let dx = location.x - start.x
+            let dy = location.y - start.y
+        
+        
+    }
     //before each frame
     override func update(_ currentTime: TimeInterval) {
         player.update(deltaTime: 1 / 60)
