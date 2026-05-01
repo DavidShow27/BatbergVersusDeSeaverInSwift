@@ -25,45 +25,45 @@ class SpriteComponent: GKComponent {
     }
 }
 
+// MAKE IT PREDEMPTIVE PHYSICS
+
 class PhysicsComponent: GKComponent {
+    
+    var hitBoxNode = SKPhysicsBody()
 
     override func didAddToEntity() {
-        guard let node = entity?.component(ofType: SpriteComponent.self)?.node
-        else { return }
-        node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
-        node.physicsBody?.allowsRotation = false
-        node.physicsBody?.restitution = 0.0
-        node.physicsBody?.friction = 0.5
-
-        assignCategories(to: node)
-
-        node.physicsBody?.contactTestBitMask = 0xFFFF_FFFF  // report ALL contacts
-        node.physicsBody?.collisionBitMask = 0xFFFF_FFFF  // collide with everything
+        guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
+        applyPhysics(to: node)
     }
-    
+
     func applyPhysics(to node: SKSpriteNode) {
-        let currentVelocity = node.physicsBody?.velocity ?? .zero
-        node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
-        node.physicsBody?.allowsRotation = false
-        node.physicsBody?.restitution = 0.0
-        node.physicsBody?.friction = 0.5
-        node.physicsBody?.velocity = currentVelocity
-        assignCategories(to: node)
-
-        node.physicsBody?.contactTestBitMask = 0xFFFF_FFFF  // report ALL contacts
-        node.physicsBody?.collisionBitMask = 0xFFFF_FFFF  // collide with everything
+        
+        let currentVelocity = node.physicsBody?.velocity ?? CGVector(dx: 0, dy: 0)
+        
+        hitBoxNode = SKPhysicsBody(rectangleOf: node.size)
+        hitBoxNode.allowsRotation = false
+        hitBoxNode.restitution = 0.0
+        hitBoxNode.friction = 1.0
+        hitBoxNode.velocity = currentVelocity
+        
+        assignCategories(to: hitBoxNode)
+        
+        hitBoxNode.contactTestBitMask = 0xFFFF_FFFF  // report ALL contacts
+        hitBoxNode.collisionBitMask = 0xFFFF_FFFF  // collide with everything
+        
+        node.physicsBody = hitBoxNode
     }
 
-    private func assignCategories(to node: SKSpriteNode) {
+    private func assignCategories(to node: SKPhysicsBody) {
         if entity is Player {
-            node.physicsBody?.categoryBitMask = PhysicsCategory.player
-            node.physicsBody?.contactTestBitMask = PhysicsCategory.enemy
-            node.physicsBody?.collisionBitMask =
+            hitBoxNode.categoryBitMask = PhysicsCategory.player
+            hitBoxNode.contactTestBitMask = PhysicsCategory.enemy
+            hitBoxNode.collisionBitMask =
                 PhysicsCategory.floor | PhysicsCategory.enemy
         } else if entity is Enemy {
-            node.physicsBody?.categoryBitMask = PhysicsCategory.enemy
-            node.physicsBody?.contactTestBitMask = PhysicsCategory.player
-            node.physicsBody?.collisionBitMask =
+            hitBoxNode.categoryBitMask = PhysicsCategory.enemy
+            hitBoxNode.contactTestBitMask = PhysicsCategory.player
+            hitBoxNode.collisionBitMask =
                 PhysicsCategory.floor | PhysicsCategory.player
         }
     }
@@ -81,6 +81,64 @@ class HealthComponent: GKComponent {
         super.init()
     }
 
+    // Health bar nodes
+    private var healthBarBackground: SKShapeNode?
+    private var healthBarFill: SKShapeNode?
+
+    // Variables for the health bar itself
+    let barWidth: CGFloat = 80
+    let barHeight: CGFloat = 10
+
+    override func didAddToEntity() {
+        guard let node = entity?.component(ofType: SpriteComponent.self)?.node
+        else { return }
+        setupHealthBar(on: node)
+    }
+
+    private func setupHealthBar(on node: SKSpriteNode) {
+        // Gray background bar
+        let background = SKShapeNode(
+            rectOf: CGSize(width: barWidth, height: barHeight),
+            cornerRadius: 3
+        )
+        background.fillColor = .darkGray
+        background.strokeColor = .clear
+        background.position = CGPoint(x: 0, y: node.size.height / 2 + 15)
+        background.zPosition = 10
+        node.addChild(background)
+        healthBarBackground = background
+
+        // Green fill bar
+        let fill = SKShapeNode(
+            rectOf: CGSize(width: barWidth, height: barHeight),
+            cornerRadius: 3
+        )
+        fill.fillColor = .green
+        fill.strokeColor = .clear
+        fill.position = CGPoint(x: 0, y: node.size.height / 2 + 15)
+        fill.zPosition = 11
+        node.addChild(fill)
+        healthBarFill = fill
+    }
+
+    private func updateHealthBar() {
+        let percent = CGFloat(health) / CGFloat(maxHealth)
+        _ = barWidth * percent
+
+        // Reposition so it shrinks from the right, not the center
+        healthBarFill?.xScale = percent
+        healthBarFill?.position.x = -barWidth / 2 * (1 - percent)
+
+        // Color changes based on health
+        if percent > 0.5 {
+            healthBarFill?.fillColor = .green
+        } else if percent > 0.25 {
+            healthBarFill?.fillColor = .yellow
+        } else {
+            healthBarFill?.fillColor = .red
+        }
+    }
+
     override func update(deltaTime seconds: TimeInterval) {
         if health <= 0 {
             die()
@@ -89,6 +147,7 @@ class HealthComponent: GKComponent {
 
     func takeDamage(ammount: Int) {
         health -= ammount
+        updateHealthBar()
     }
 
     func die() {
