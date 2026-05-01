@@ -54,7 +54,8 @@ class JumpComponent: GKComponent {
         body.applyImpulse(CGVector(dx: 0, dy: jumpStrength))
     }
 }
-
+// When health is added
+// Add a height check to see if damage should be dealt
 class GroundPoundComponent: GKComponent {
 
     var groundPoundStrength: CGFloat = -1000

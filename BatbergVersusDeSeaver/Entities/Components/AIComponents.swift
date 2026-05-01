@@ -107,8 +107,9 @@ class AttackEntityComponent : GKComponent {
         guard let selfPosition = sprite?.node.position else { return }
         
         let XDiff = abs(selfPosition.x - whoPosition.x)
+        let YDiff = abs(selfPosition.y - whoPosition.y)
 
-        if selfPosition.y > whoPosition.y && XDiff < 50  {
+        if selfPosition.y > whoPosition.y && XDiff < 50 && YDiff < 250 {
             entity?.component(ofType: GroundPoundComponent.self)?.groundPound()
             entity?.component(ofType: CrouchComponent.self)?.crouch()
         } else {
