@@ -25,45 +25,45 @@ class SpriteComponent: GKComponent {
     }
 }
 
+// MAKE IT PREDEMPTIVE PHYSICS
+
 class PhysicsComponent: GKComponent {
+    
+    var hitBoxNode = SKPhysicsBody()
 
     override func didAddToEntity() {
-        guard let node = entity?.component(ofType: SpriteComponent.self)?.node
-        else { return }
-        node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
-        node.physicsBody?.allowsRotation = false
-        node.physicsBody?.restitution = 0.0
-        node.physicsBody?.friction = 0.5
-
-        assignCategories(to: node)
-
-        node.physicsBody?.contactTestBitMask = 0xFFFF_FFFF  // report ALL contacts
-        node.physicsBody?.collisionBitMask = 0xFFFF_FFFF  // collide with everything
+        guard let node = entity?.component(ofType: SpriteComponent.self)?.node else { return }
+        applyPhysics(to: node)
     }
 
     func applyPhysics(to node: SKSpriteNode) {
-        let currentVelocity = node.physicsBody?.velocity ?? .zero
-        node.physicsBody = SKPhysicsBody(rectangleOf: node.size)
-        node.physicsBody?.allowsRotation = false
-        node.physicsBody?.restitution = 0.0
-        node.physicsBody?.friction = 0.5
-        node.physicsBody?.velocity = currentVelocity
-        assignCategories(to: node)
-
-        node.physicsBody?.contactTestBitMask = 0xFFFF_FFFF  // report ALL contacts
-        node.physicsBody?.collisionBitMask = 0xFFFF_FFFF  // collide with everything
+        
+        let currentVelocity = node.physicsBody?.velocity ?? CGVector(dx: 0, dy: 0)
+        
+        hitBoxNode = SKPhysicsBody(rectangleOf: node.size)
+        hitBoxNode.allowsRotation = false
+        hitBoxNode.restitution = 0.0
+        hitBoxNode.friction = 1.0
+        hitBoxNode.velocity = currentVelocity
+        
+        assignCategories(to: hitBoxNode)
+        
+        hitBoxNode.contactTestBitMask = 0xFFFF_FFFF  // report ALL contacts
+        hitBoxNode.collisionBitMask = 0xFFFF_FFFF  // collide with everything
+        
+        node.physicsBody = hitBoxNode
     }
 
-    private func assignCategories(to node: SKSpriteNode) {
+    private func assignCategories(to node: SKPhysicsBody) {
         if entity is Player {
-            node.physicsBody?.categoryBitMask = PhysicsCategory.player
-            node.physicsBody?.contactTestBitMask = PhysicsCategory.enemy
-            node.physicsBody?.collisionBitMask =
+            hitBoxNode.categoryBitMask = PhysicsCategory.player
+            hitBoxNode.contactTestBitMask = PhysicsCategory.enemy
+            hitBoxNode.collisionBitMask =
                 PhysicsCategory.floor | PhysicsCategory.enemy
         } else if entity is Enemy {
-            node.physicsBody?.categoryBitMask = PhysicsCategory.enemy
-            node.physicsBody?.contactTestBitMask = PhysicsCategory.player
-            node.physicsBody?.collisionBitMask =
+            hitBoxNode.categoryBitMask = PhysicsCategory.enemy
+            hitBoxNode.contactTestBitMask = PhysicsCategory.player
+            hitBoxNode.collisionBitMask =
                 PhysicsCategory.floor | PhysicsCategory.player
         }
     }

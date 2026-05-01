@@ -118,12 +118,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 .isGroundPounding = false
         }
         
-        //if names.contains("player") && names.contains("enemy") {
+        if names.contains("player") && names.contains("enemy") {
             
             let side = collisionSide(contactPoint: contact.contactPoint, node: contact.bodyA.node!)
             enemy.lastCollisionSide = side
             print(side)
-        //}
+        }
         /* DO THIS ONLY IF YOU WANT DIFFICULT BATBERG
             switch side {
             case .top:
