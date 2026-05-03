@@ -18,10 +18,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var wall1L = SKSpriteNode()
 
     var player = Player.shared
-    var grapple: Grapple!
-    var grappleSprite: SKSpriteNode!
-    var selectedNode: SKSpriteNode?
-    var touchStartPoint: CGPoint?
 
     var enemy = Enemy.shared
 
@@ -29,6 +25,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     let joyStick = Joystick(size: 100)
     let actionButton = ActionButton(size: CGSize(width: 175, height: 175))
+    let grapple = Grapple(size: 200)
+    
     //let topEdge = cam.position.y + (self.size.height / 2)
     /*
             let bottomEdge = self.frame.minY
@@ -38,45 +36,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //on scene load
     override func didMove(to view: SKView) {
 
-        //addChild(makeFLoor(size: CGSize(width: 200, height: 20), position: CGPoint(x: 50, y: -50)))
-
         physicsWorld.contactDelegate = self
 
         wall1R = SKSpriteNode(imageNamed: wallImage)
 
-        if let playerNode = self.childNode(withName: "player") as? SKSpriteNode
-        {
+        if let playerNode = self.childNode(withName: "player") as? SKSpriteNode {
             player.component(ofType: SpriteComponent.self)?.node = playerNode
         }
+        
         if let enemyNode = self.childNode(withName: "enemy") as? SKSpriteNode {
             enemy.component(ofType: SpriteComponent.self)?.node = enemyNode
         }
-        if let sprite = player.component(ofType: SpriteComponent.self)?.node {
-
-            let position = sprite.position
-
-            grappleSprite = SKSpriteNode(imageNamed: "grapple")
-            grappleSprite.position = position
-            grappleSprite.isHidden = true
-            addChild(grappleSprite)
-
-            grapple = Grapple(
-                velocity: .zero,
-                playerPosition: position,
-                ground: 100
-            )
-
-            player.addComponent(grapple)
-        }
+        
         addChild(cam)
         self.camera = cam
 
         joyStick.zPosition = 1
         actionButton.zPosition = 1
+        grapple.zPosition = 0
+        
         addChild(joyStick)
         addChild(actionButton)
-        
-        
+        addChild(grapple)
 
         joyStick.onCrouchChanged = { isCrouching in
             if isCrouching {
@@ -101,68 +82,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         print("GAME OVER")
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
-        let location = touch.location(in: self)
-
-            if let node = atPoint(location) as? SKSpriteNode {
-                selectedNode = node
-                touchStartPoint = location
-
-                node.physicsBody?.isDynamic = false
-                node.physicsBody?.velocity = .zero
-            }
-        print("YOU TOUCHED ME!")
-    }
-    
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first,
-                  let start = touchStartPoint else { return }
-        let location = touch.location(in: self)
-
-            let dx = location.x - start.x
-            let dy = location.y - start.y
-        
-        let distance = sqrt(dx*dx + dy*dy)
-        let maxDistance: CGFloat = 100
-
-        var clampedDx = dx
-        var clampedDy = dy
-
-        if distance > maxDistance {
-            let scale = maxDistance / distance
-            clampedDx *= scale
-            clampedDy *= scale
-        }
-        if let playerNode = player.component(ofType: SpriteComponent.self)?.node {
-            let position = playerNode.position
-            grapple = Grapple(velocity: CGVector(dx: clampedDx, dy: clampedDy), playerPosition: position, ground: floor1.yScale)
-        }
-        
-        print("PULLING")
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first,
-                  let node = selectedNode,
-                  let start = touchStartPoint else { return }
-        grapple.launch(with: grapple.velocity)
-    }
-    
     //before each frame
     override func update(_ currentTime: TimeInterval) {
         player.update(deltaTime: 1 / 60)
         enemy.update(deltaTime: 1 / 60)
-        grapple.update(detalTime: 1/60)
 
-        guard
-            let xPos = player.component(ofType: SpriteComponent.self)?.node
-                .position.x
-        else { return }
-        guard
-            let yPos = player.component(ofType: SpriteComponent.self)?.node
-                .position.y
-        else { return }
+        guard let xPos = player.component(ofType: SpriteComponent.self)?.node.position.x else { return }
+        
+        guard let yPos = player.component(ofType: SpriteComponent.self)?.node.position.y else { return }
 
         cam.position.x = xPos
         cam.position.y = yPos + 100
@@ -172,6 +99,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         actionButton.position.x = xPos + (size.width / 3)
         actionButton.position.y = yPos - (size.height / 10)
+        
+        grapple.position = CGPoint(x: xPos, y: yPos)
 
     }
 
