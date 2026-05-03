@@ -100,6 +100,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.isPaused = true
         print("GAME OVER")
     }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
@@ -113,6 +114,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         print("YOU TOUCHED ME!")
     }
+    
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first,
                   let start = touchStartPoint else { return }
@@ -200,20 +202,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             enemy.lastCollisionSide = side
             print(side)
         }
-        /* DO THIS ONLY IF YOU WANT DIFFICULT BATBERG
-            switch side {
-            case .top:
-                // landing detection
-                player.component(ofType: JumpComponent.self)?.isJumping = false
-                enemy.component(ofType: SlideComponent.self)?.slide()
-            case .bottom:
-                // hit head on ceiling
-                enemy.component(ofType: SlideComponent.self)?.slide()
-            case .left, .right:
-                // wall collision — tell AI it's blocked
-                enemy.component(ofType: FollowEntityComponent.self)?.fleeEntity(who: player)
-            }
-        */
 
     }
 
@@ -225,6 +213,8 @@ enum CollisionSide {
     case bottom
     case left
     case right
+    
+    case reset
 }
 
 // returns the enum, not the component

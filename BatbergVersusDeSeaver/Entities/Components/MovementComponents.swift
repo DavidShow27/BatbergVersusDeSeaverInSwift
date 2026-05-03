@@ -49,9 +49,8 @@ class JumpComponent: GKComponent {
 
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node
         else { return }
-        guard let body = node.physicsBody else { return }
         isJumping = true
-        body.applyImpulse(CGVector(dx: 0, dy: jumpStrength))
+        node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: jumpStrength))
     }
 }
 // When health is added
