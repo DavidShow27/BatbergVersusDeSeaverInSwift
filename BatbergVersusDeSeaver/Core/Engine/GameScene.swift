@@ -225,7 +225,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             enemy.lastCollisionSide = side
             print(side)
         }
-        print(contact.bodyA.categoryBitMask, contact.bodyB.categoryBitMask)
 
     }
 
@@ -248,10 +247,10 @@ func collisionSide(contactPoint: CGPoint, node: SKNode) -> CollisionSide {
     // check magnitudes of each value
     if abs(dx) > abs(dy) {
         // compare x side
-        return dx > 0 ? .right : .left
+        return dx < 0 ? .right : .left
     } else {
         // compare y side
-        return dy > 0 ? .top : .bottom
+        return dy < 0 ? .top : .bottom
     }
 
 }
