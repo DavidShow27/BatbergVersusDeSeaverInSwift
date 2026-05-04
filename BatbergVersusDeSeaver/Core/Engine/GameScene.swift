@@ -118,7 +118,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
+        /*guard let touch = touches.first else { return }
         let location = touch.location(in: self)
 
         if let node = atPoint(location) as? SKSpriteNode {
@@ -127,11 +127,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
             node.physicsBody?.isDynamic = false
             node.physicsBody?.velocity = .zero
-        }
+        }*/
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first,
+        /*guard let touch = touches.first,
               let node = selectedNode,
               let start = touchStartPoint else { return }
         
@@ -151,7 +151,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 )
             } else {
                 node.position = location
-            }
+            }*/
     }
 
     //before each frame
@@ -202,6 +202,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
                 playerNode.physicsBody?.velocity = .zero
                 playerNode.position = newPosition
+                
+                player.component(ofType: GrappleComponent.self)?.grappleNode.removeFromParent()
             }
         }
         if names.contains("enemy") && names.contains("floor") {
