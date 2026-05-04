@@ -21,7 +21,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     var enemy = Enemy.shared
     
-    var grapple: Grapple!
+    //var grapple: Grapple!
     var grappleSprite: SKSpriteNode!
     var selectedNode: SKSpriteNode?
     var touchStartPoint: CGPoint?
@@ -44,10 +44,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
 
         wall1R = SKSpriteNode(imageNamed: wallImage)
-
+        if let floor = childNode(withName: "floor") as? SKSpriteNode {
+            floor.physicsBody = SKPhysicsBody(rectangleOf: floor.size)
+                    floor.physicsBody?.isDynamic = false
+                    floor.physicsBody?.categoryBitMask = PhysicsCategory.floor
+                    floor.physicsBody?.collisionBitMask = PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
+        }
+        
         if let playerNode = self.childNode(withName: "player") as? SKSpriteNode {
             player.component(ofType: SpriteComponent.self)?.node = playerNode
+            playerNode.physicsBody?.categoryBitMask = PhysicsCategory.player
+
+            playerNode.physicsBody?.collisionBitMask =
+                PhysicsCategory.floor | PhysicsCategory.enemy
+            playerNode.physicsBody?.contactTestBitMask =
+                PhysicsCategory.enemy | PhysicsCategory.floor
         }
+        
+        
+        
+        
         
         if let enemyNode = self.childNode(withName: "enemy") as? SKSpriteNode {
             enemy.component(ofType: SpriteComponent.self)?.node = enemyNode
@@ -65,13 +81,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             grappleSprite.isHidden = true
             addChild(grappleSprite)
 
-            grapple = Grapple(
-                velocity: .zero,
-                playerPosition: position,
-                ground: 100
-            )
-
-            player.addComponent(grapple)
+            
         }
 
         joyStick.zPosition = 1
@@ -96,6 +106,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             name: .playerDied,
             object: nil
         )
+        
+        
 
     }
 
@@ -146,6 +158,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         player.update(deltaTime: 1 / 60)
         enemy.update(deltaTime: 1 / 60)
+        
+        
 
         guard let xPos = player.component(ofType: SpriteComponent.self)?.node.position.x else { return }
         
@@ -172,7 +186,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let bodyB = contact.bodyB.node?.name
 
         let names = [bodyA, bodyB]
+        
+        if names.contains("grapple") && names.contains("floor") {
+            print("GRAPPLE HIT FLOOR")
 
+            if let grappleNode = player.component(ofType: GrappleComponent.self)?.grappleNode {
+                grappleNode.physicsBody?.velocity = .zero
+            }
+
+            if let playerNode = self.childNode(withName: "player") as? SKSpriteNode,
+               let grappleNode = player.component(ofType: GrappleComponent.self)?.grappleNode,
+               let parent = playerNode.parent {
+
+                let newPosition = grappleNode.parent?.convert(grappleNode.position, to: parent) ?? .zero
+
+                playerNode.physicsBody?.velocity = .zero
+                playerNode.position = newPosition
+            }
+        }
         if names.contains("enemy") && names.contains("floor") {
             enemy.component(ofType: JumpComponent.self)?.isJumping = false
             enemy.component(ofType: GroundPoundComponent.self)?
@@ -191,6 +222,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             enemy.lastCollisionSide = side
             print(side)
         }
+        print(contact.bodyA.categoryBitMask, contact.bodyB.categoryBitMask)
 
     }
 
