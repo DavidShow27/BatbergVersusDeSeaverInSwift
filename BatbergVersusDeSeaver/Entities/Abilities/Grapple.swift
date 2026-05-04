@@ -141,32 +141,32 @@ class GrappleComponent: GKComponent {
     }
     
     override func update(deltaTime seconds: TimeInterval) {
-        //if !canLaunch { return }
         guard canLaunch else { return }
-       // let dt = CGFloat(seconds)
+        
+        guard let body = sprite?.node.physicsBody else { return }
+        
         grappleNode.physicsBody?.velocity = CGVector(
             dx: launchVector.dx * 3,
             dy: launchVector.dy * 3
         )
-        print("moving")
         
-       // grappleNode.position.x += launchVector.dx * dt * 3
-       // grappleNode.position.y += launchVector.dy * dt * 3
+        
+        grappleNode.position.x += launchVector.dx * seconds * 3
+        grappleNode.position.y += launchVector.dy * seconds * 3
         // Get actual current speed using pythagoras
-        /*currentSpeed = sqrt(
-         grappleNode.velocity.dx * grappleNode.velocity.dx +
-         grappleNode.velocity.dy * grappleNode.velocity.dy
-         )*/
+        currentSpeed = sqrt(
+         body.velocity.dx * body.velocity.dx +
+         body.velocity.dy * body.velocity.dy
+        )
         
         grappleAccel = CGVector(dx: grappleAccel.dx + maxAccel.dx / 50, dy: grappleAccel.dy + maxAccel.dy / 50)
         
-        
-        
-        
-        grappleAccel = .zero
-        
-        
-        
+        if currentSpeed < maxVelocity {
+            body.applyForce(grappleAccel)
+        } else {
+            grappleAccel = .zero
+            canLaunch = false
+        }
     }
     
     

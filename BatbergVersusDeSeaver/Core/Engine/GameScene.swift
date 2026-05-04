@@ -116,43 +116,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.isPaused = true
         print("GAME OVER")
     }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
-        let location = touch.location(in: self)
-
-        if let node = atPoint(location) as? SKSpriteNode {
-            selectedNode = node
-            touchStartPoint = location
-
-            node.physicsBody?.isDynamic = false
-            node.physicsBody?.velocity = .zero
-        }
-    }
-    
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first,
-              let node = selectedNode,
-              let start = touchStartPoint else { return }
-        
-        let location = touch.location(in: self)
-        
-        let dx = location.x - start.x
-            let dy = location.y - start.y
-
-            let maxDistance: CGFloat = 100
-            let distance = sqrt(dx*dx + dy*dy)
-
-            if distance > maxDistance {
-                let angle = atan2(dy, dx)
-                node.position = CGPoint(
-                    x: start.x + cos(angle) * maxDistance,
-                    y: start.y + sin(angle) * maxDistance
-                )
-            } else {
-                node.position = location
-            }
-    }
 
     //before each frame
     override func update(_ currentTime: TimeInterval) {
