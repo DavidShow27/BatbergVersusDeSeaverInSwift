@@ -32,5 +32,6 @@ class Player: GKEntity {
         addComponent(CrouchComponent())
         addComponent(SlideComponent())
         addComponent(HealthComponent(health: 3))
+        addComponent(GrappleComponent())
     }
 }

@@ -48,7 +48,7 @@ class FollowEntityComponent: GKComponent {
 
         let normalX = -direction.x / length
         let normalY = -direction.y / length
-
+        
         velocity = CGVector(dx: 400 * normalX, dy: normalY * 400)
 
     }
@@ -108,9 +108,9 @@ class AttackEntityComponent : GKComponent {
         
         let XDiff = abs(selfPosition.x - whoPosition.x)
 
-        if selfPosition.y > whoPosition.y && XDiff < 50  {
-            entity?.component(ofType: GroundPoundComponent.self)?.groundPound()
+        if selfPosition.y > whoPosition.y && XDiff < 50 {
             entity?.component(ofType: CrouchComponent.self)?.crouch()
+            entity?.component(ofType: GroundPoundComponent.self)?.groundPound()
         } else {
             entity?.component(ofType: JumpComponent.self)?.jump()
             entity?.component(ofType: CrouchComponent.self)?.Uncrouch()

@@ -30,6 +30,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     let joyStick = Joystick(size: 100)
     let actionButton = ActionButton(size: CGSize(width: 175, height: 175))
+    let grapple = Grapple(size: 200)
+    
+    //let topEdge = cam.position.y + (self.size.height / 2)
+    /*
+            let bottomEdge = self.frame.minY
+            let leftEdge = self.frame.minX
+            let rightEdge = self.frame.maxX*/
 
     //on scene load
     override func didMove(to view: SKView) {
@@ -38,14 +45,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         wall1R = SKSpriteNode(imageNamed: wallImage)
 
-        if let playerNode = self.childNode(withName: "player") as? SKSpriteNode
-        {
+        if let playerNode = self.childNode(withName: "player") as? SKSpriteNode {
             player.component(ofType: SpriteComponent.self)?.node = playerNode
         }
+        
         if let enemyNode = self.childNode(withName: "enemy") as? SKSpriteNode {
             enemy.component(ofType: SpriteComponent.self)?.node = enemyNode
         }
-
+        
         addChild(cam)
         self.camera = cam
         
@@ -69,8 +76,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         joyStick.zPosition = 1
         actionButton.zPosition = 1
+        grapple.zPosition = 0
+        
         addChild(joyStick)
         addChild(actionButton)
+        addChild(grapple)
 
         joyStick.onCrouchChanged = { isCrouching in
             if isCrouching {
@@ -137,14 +147,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.update(deltaTime: 1 / 60)
         enemy.update(deltaTime: 1 / 60)
 
-        guard
-            let xPos = player.component(ofType: SpriteComponent.self)?.node
-                .position.x
-        else { return }
-        guard
-            let yPos = player.component(ofType: SpriteComponent.self)?.node
-                .position.y
-        else { return }
+        guard let xPos = player.component(ofType: SpriteComponent.self)?.node.position.x else { return }
+        
+        guard let yPos = player.component(ofType: SpriteComponent.self)?.node.position.y else { return }
 
         cam.position.x = xPos
         cam.position.y = yPos + 100
@@ -154,6 +159,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         actionButton.position.x = xPos + (size.width / 3)
         actionButton.position.y = yPos - (size.height / 10)
+        
+        grapple.position = CGPoint(x: xPos, y: yPos)
 
     }
 
@@ -178,26 +185,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 .isGroundPounding = false
         }
         
-        //if names.contains("player") && names.contains("enemy") {
+        if names.contains("player") && names.contains("enemy") {
             
             let side = collisionSide(contactPoint: contact.contactPoint, node: contact.bodyA.node!)
             enemy.lastCollisionSide = side
             print(side)
-        //}
-        /* DO THIS ONLY IF YOU WANT DIFFICULT BATBERG
-            switch side {
-            case .top:
-                // landing detection
-                player.component(ofType: JumpComponent.self)?.isJumping = false
-                enemy.component(ofType: SlideComponent.self)?.slide()
-            case .bottom:
-                // hit head on ceiling
-                enemy.component(ofType: SlideComponent.self)?.slide()
-            case .left, .right:
-                // wall collision — tell AI it's blocked
-                enemy.component(ofType: FollowEntityComponent.self)?.fleeEntity(who: player)
-            }
-        */
+        }
 
     }
 
@@ -209,6 +202,8 @@ enum CollisionSide {
     case bottom
     case left
     case right
+    
+    case reset
 }
 
 // returns the enum, not the component

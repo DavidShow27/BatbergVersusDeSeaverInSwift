@@ -31,7 +31,7 @@ class Enemy: GKEntity {
     }
     
     private func setUp() {
-        addComponent(SpriteComponent(imageName: "BatBergPlaceHolder"))
+        addComponent(SpriteComponent(imageName: "DeSeaverRight"))
         addComponent(PhysicsComponent())
         addComponent(MovementComponent())
         addComponent(JumpComponent())

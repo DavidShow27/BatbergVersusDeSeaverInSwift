@@ -49,15 +49,15 @@ class JumpComponent: GKComponent {
 
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node
         else { return }
-        guard let body = node.physicsBody else { return }
         isJumping = true
-        body.applyImpulse(CGVector(dx: 0, dy: jumpStrength))
+        node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: jumpStrength))
     }
 }
-
+// When health is added
+// Add a height check to see if damage should be dealt
 class GroundPoundComponent: GKComponent {
 
-    var groundPoundStrength: CGFloat = -500
+    var groundPoundStrength: CGFloat = -1000
     var isGroundPounding: Bool = false
 
     func groundPound() {

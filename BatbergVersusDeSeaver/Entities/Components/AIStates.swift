@@ -34,7 +34,7 @@ class IdleState: GKState {
         let dy = playerPos.y - selfPos.y
         let distance = sqrt(dx * dx + dy * dy)
 
-        if distance < 500 {
+        if distance < 700 {
             stateMachine?.enter(ChaseState.self)
         }
         
@@ -60,6 +60,7 @@ class ChaseState : GKState {
     
     override func didEnter(from previousState: GKState?) {
         print("entering chasing state")
+        entity?.component(ofType: FollowEntityComponent.self)?.flee = false
         entity?.component(ofType: FollowEntityComponent.self)?.follow = true
     }
     
@@ -79,7 +80,7 @@ class ChaseState : GKState {
         }
                 
         // Lost the player
-        if distance > 500 {
+        if distance > 700 {
             stateMachine?.enter(IdleState.self)
         }
         
@@ -91,6 +92,8 @@ class ChaseState : GKState {
         case .left:
             break
         case .right:
+            break
+        case .reset:
             break
         }
 
@@ -116,9 +119,10 @@ class AttackState: GKState {
     
     override func didEnter(from previousState: GKState?) {
         print("entering attack state")
+        entity?.lastCollisionSide = .reset
         entity?.component(ofType: FollowEntityComponent.self)?.follow = true
         entity?.component(ofType: AttackEntityComponent.self)?.attack = true
-        entity?.component(ofType: CrouchComponent.self)?.isCrouching = false
+        entity?.component(ofType: SlideComponent.self)?.isSliding = false
     }
     
     override func update(deltaTime seconds: TimeInterval) {
@@ -132,7 +136,7 @@ class AttackState: GKState {
         let dy = playerPos.y - selfPos.y
         let distance = sqrt(dx * dx + dy * dy)
                 
-        // Close enough to attack
+        // far away
         if distance > 300 {
             stateMachine?.enter(ChaseState.self)
         }
@@ -141,17 +145,19 @@ class AttackState: GKState {
         case .top:
             entity.component(ofType: SlideComponent.self)?.slide()
         case .bottom:
-            entity.component(ofType: SlideComponent.self)?.slide()
+            entity.component(ofType: FollowEntityComponent.self)?.follow = false
+            entity.component(ofType: FollowEntityComponent.self)?.flee = true
         case .left:
             entity.component(ofType: JumpComponent.self)?.jump()
         case .right:
             entity.component(ofType: JumpComponent.self)?.jump()
+        case .reset:
+            break
         }
 
     }
     
     override func willExit(to nextState: GKState) {
-        entity?.component(ofType: FollowEntityComponent.self)?.follow = false
         entity?.component(ofType: AttackEntityComponent.self)?.attack = false
         entity?.component(ofType: CrouchComponent.self)?.isCrouching = false
     }
