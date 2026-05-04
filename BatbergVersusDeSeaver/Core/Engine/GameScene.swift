@@ -44,13 +44,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
 
         wall1R = SKSpriteNode(imageNamed: wallImage)
-        if let floor = childNode(withName: "floor") as? SKSpriteNode {
-            floor.physicsBody = SKPhysicsBody(rectangleOf: floor.size)
-                    floor.physicsBody?.isDynamic = false
-                    floor.physicsBody?.categoryBitMask = PhysicsCategory.floor
-                    floor.physicsBody?.collisionBitMask = PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
+        enumerateChildNodes(withName: "floor") { node, _ in
+            if let floor = node as? SKSpriteNode {
+                floor.physicsBody = SKPhysicsBody(rectangleOf: floor.frame.size)
+                floor.physicsBody?.isDynamic = false
+                floor.physicsBody?.categoryBitMask = PhysicsCategory.floor
+                floor.physicsBody?.collisionBitMask = PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
+            }
         }
-        
         if let playerNode = self.childNode(withName: "player") as? SKSpriteNode {
             player.component(ofType: SpriteComponent.self)?.node = playerNode
             playerNode.physicsBody?.categoryBitMask = PhysicsCategory.player
