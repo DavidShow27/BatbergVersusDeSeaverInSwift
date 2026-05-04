@@ -44,13 +44,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
 
         wall1R = SKSpriteNode(imageNamed: wallImage)
-        if let floor = childNode(withName: "floor") as? SKSpriteNode {
-            floor.physicsBody = SKPhysicsBody(rectangleOf: floor.size)
-                    floor.physicsBody?.isDynamic = false
-                    floor.physicsBody?.categoryBitMask = PhysicsCategory.floor
-                    floor.physicsBody?.collisionBitMask = PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
+        enumerateChildNodes(withName: "floor") { node, _ in
+            if let floor = node as? SKSpriteNode {
+                floor.physicsBody = SKPhysicsBody(rectangleOf: floor.frame.size)
+                floor.physicsBody?.isDynamic = false
+                floor.physicsBody?.categoryBitMask = PhysicsCategory.floor
+                floor.physicsBody?.collisionBitMask = PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
+            }
         }
-        
         if let playerNode = self.childNode(withName: "player") as? SKSpriteNode {
             player.component(ofType: SpriteComponent.self)?.node = playerNode
             playerNode.physicsBody?.categoryBitMask = PhysicsCategory.player
@@ -116,6 +117,43 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.isPaused = true
         print("GAME OVER")
     }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        /*guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
+
+        if let node = atPoint(location) as? SKSpriteNode {
+            selectedNode = node
+            touchStartPoint = location
+
+            node.physicsBody?.isDynamic = false
+            node.physicsBody?.velocity = .zero
+        }*/
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        /*guard let touch = touches.first,
+              let node = selectedNode,
+              let start = touchStartPoint else { return }
+        
+        let location = touch.location(in: self)
+        
+        let dx = location.x - start.x
+            let dy = location.y - start.y
+
+            let maxDistance: CGFloat = 100
+            let distance = sqrt(dx*dx + dy*dy)
+
+            if distance > maxDistance {
+                let angle = atan2(dy, dx)
+                node.position = CGPoint(
+                    x: start.x + cos(angle) * maxDistance,
+                    y: start.y + sin(angle) * maxDistance
+                )
+            } else {
+                node.position = location
+            }*/
+    }
 
     //before each frame
     override func update(_ currentTime: TimeInterval) {
@@ -165,6 +203,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
                 playerNode.physicsBody?.velocity = .zero
                 playerNode.position = newPosition
+                
+                player.component(ofType: GrappleComponent.self)?.grappleNode.removeFromParent()
             }
         }
         if names.contains("enemy") && names.contains("floor") {
