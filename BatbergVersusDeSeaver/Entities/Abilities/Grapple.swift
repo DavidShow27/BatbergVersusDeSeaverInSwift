@@ -166,6 +166,7 @@ class GrappleComponent: GKComponent {
         } else {
             grappleAccel = .zero
             canLaunch = false
+            grappleNode.removeFromParent()
         }
     }
     
