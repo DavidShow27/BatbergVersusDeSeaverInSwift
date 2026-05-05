@@ -151,8 +151,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if names.contains("grapple") && names.contains("Floor") {
             if let grappleNode = player.component(ofType: GrappleComponent.self)?.grap {
                 grappleNode.physicsBody?.velocity = .zero
+                
             }
             player.component(ofType: GrappleComponent.self)?.canLaunchEntity = true
+            player.component(ofType: GrappleComponent.self)?.grap?.removeFromParent()
         }
         
         if names.contains("grapple") && names.contains("player") {

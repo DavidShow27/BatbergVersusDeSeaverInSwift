@@ -122,6 +122,7 @@ class GrappleComponent: GKComponent {
             PhysicsCategory.floor | PhysicsCategory.enemy | PhysicsCategory.player
             grap?.physicsBody?.collisionBitMask =
             PhysicsCategory.floor | PhysicsCategory.enemy | PhysicsCategory.player
+            grap?.physicsBody?.allowsRotation = false
             
             grap?.name = "grapple"
         }
