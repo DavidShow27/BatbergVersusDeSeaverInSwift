@@ -13,7 +13,7 @@ import GameplayKit
 // treat this like an abstract class
 class Enemy: GKEntity {
     
-    var lastCollisionSide: CollisionSide = .bottom
+    var lastCollisionSide: CollisionSide = .reset
     
     static let shared = Enemy()
     
@@ -31,7 +31,7 @@ class Enemy: GKEntity {
     }
     
     private func setUp() {
-        addComponent(SpriteComponent(imageName: "DeSeaverRight"))
+        addComponent(SpriteComponent(imageName: "NewDeSeaver"))
         addComponent(PhysicsComponent())
         addComponent(MovementComponent())
         addComponent(JumpComponent())

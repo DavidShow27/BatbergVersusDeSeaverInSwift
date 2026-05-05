@@ -44,27 +44,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
 
         wall1R = SKSpriteNode(imageNamed: wallImage)
-        enumerateChildNodes(withName: "floor") { node, _ in
+        
+        enumerateChildNodes(withName: "Floor") { node, _ in
             if let floor = node as? SKSpriteNode {
-                floor.physicsBody = SKPhysicsBody(rectangleOf: floor.frame.size)
+                floor.physicsBody = SKPhysicsBody(rectangleOf: floor.size)
                 floor.physicsBody?.isDynamic = false
+                
                 floor.physicsBody?.categoryBitMask = PhysicsCategory.floor
-                floor.physicsBody?.collisionBitMask = PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
+                floor.physicsBody?.collisionBitMask =
+                PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
+                floor.physicsBody?.contactTestBitMask =
+                PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
+
             }
         }
+        
         if let playerNode = self.childNode(withName: "player") as? SKSpriteNode {
             player.component(ofType: SpriteComponent.self)?.node = playerNode
+            
             playerNode.physicsBody?.categoryBitMask = PhysicsCategory.player
-
             playerNode.physicsBody?.collisionBitMask =
                 PhysicsCategory.floor | PhysicsCategory.enemy
             playerNode.physicsBody?.contactTestBitMask =
                 PhysicsCategory.enemy | PhysicsCategory.floor
         }
-        
-        
-        
-        
         
         if let enemyNode = self.childNode(withName: "enemy") as? SKSpriteNode {
             enemy.component(ofType: SpriteComponent.self)?.node = enemyNode
@@ -74,7 +77,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.camera = cam
         
         if let sprite = player.component(ofType: SpriteComponent.self)?.node {
-
             let position = sprite.position
 
             grappleSprite = SKSpriteNode(imageNamed: "grapple")
@@ -82,7 +84,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             grappleSprite.isHidden = true
             addChild(grappleSprite)
 
-            
         }
 
         joyStick.zPosition = 1
@@ -108,8 +109,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             object: nil
         )
         
-        
-
     }
 
     @objc func handleGameOver() {
@@ -117,53 +116,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.isPaused = true
         print("GAME OVER")
     }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        /*guard let touch = touches.first else { return }
-        let location = touch.location(in: self)
-
-        if let node = atPoint(location) as? SKSpriteNode {
-            selectedNode = node
-            touchStartPoint = location
-
-            node.physicsBody?.isDynamic = false
-            node.physicsBody?.velocity = .zero
-        }*/
-    }
-    
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        /*guard let touch = touches.first,
-              let node = selectedNode,
-              let start = touchStartPoint else { return }
-        
-        let location = touch.location(in: self)
-        
-        let dx = location.x - start.x
-            let dy = location.y - start.y
-
-            let maxDistance: CGFloat = 100
-            let distance = sqrt(dx*dx + dy*dy)
-
-            if distance > maxDistance {
-                let angle = atan2(dy, dx)
-                node.position = CGPoint(
-                    x: start.x + cos(angle) * maxDistance,
-                    y: start.y + sin(angle) * maxDistance
-                )
-            } else {
-                node.position = location
-            }*/
-    }
 
     //before each frame
     override func update(_ currentTime: TimeInterval) {
         player.update(deltaTime: 1 / 60)
+        
         enemy.update(deltaTime: 1 / 60)
-        
-        
 
         guard let xPos = player.component(ofType: SpriteComponent.self)?.node.position.x else { return }
-        
         guard let yPos = player.component(ofType: SpriteComponent.self)?.node.position.y else { return }
 
         cam.position.x = xPos
@@ -188,32 +148,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         let names = [bodyA, bodyB]
         
-        if names.contains("grapple") && names.contains("floor") {
-            print("GRAPPLE HIT FLOOR")
-
-            if let grappleNode = player.component(ofType: GrappleComponent.self)?.grappleNode {
+        if names.contains("grapple") && names.contains("Floor") {
+            if let grappleNode = player.component(ofType: GrappleComponent.self)?.grap {
                 grappleNode.physicsBody?.velocity = .zero
             }
-
-            if let playerNode = self.childNode(withName: "player") as? SKSpriteNode,
-               let grappleNode = player.component(ofType: GrappleComponent.self)?.grappleNode,
-               let parent = playerNode.parent {
-
-                let newPosition = grappleNode.parent?.convert(grappleNode.position, to: parent) ?? .zero
-
-                playerNode.physicsBody?.velocity = .zero
-                playerNode.position = newPosition
-                
-                player.component(ofType: GrappleComponent.self)?.grappleNode.removeFromParent()
-            }
+            player.component(ofType: GrappleComponent.self)?.canLaunchEntity = true
         }
-        if names.contains("enemy") && names.contains("floor") {
+        
+        if names.contains("grapple") && names.contains("player") {
+            player.component(ofType: GrappleComponent.self)?.removeGrapple()
+        }
+        
+        if names.contains("enemy") && names.contains("Floor") {
             enemy.component(ofType: JumpComponent.self)?.isJumping = false
             enemy.component(ofType: GroundPoundComponent.self)?
                 .isGroundPounding = false
         }
 
-        if names.contains("player") && names.contains("floor") {
+        if names.contains("player") && names.contains("Floor") {
             player.component(ofType: JumpComponent.self)?.isJumping = false
             player.component(ofType: GroundPoundComponent.self)?
                 .isGroundPounding = false
@@ -247,10 +199,10 @@ func collisionSide(contactPoint: CGPoint, node: SKNode) -> CollisionSide {
     // check magnitudes of each value
     if abs(dx) > abs(dy) {
         // compare x side
-        return dx < 0 ? .right : .left
+        return dx > 0 ? .right : .left
     } else {
         // compare y side
-        return dy < 0 ? .top : .bottom
+        return dy > 0 ? .top : .bottom
     }
 
 }
