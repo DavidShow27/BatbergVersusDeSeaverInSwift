@@ -5,6 +5,7 @@
 //  Created by DAVID SHOW on 4/16/26.
 //
 
+import AVFoundation
 import GameplayKit
 import SpriteKit
 
@@ -20,7 +21,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var player = Player.shared
 
     var enemy = Enemy.shared
-    
+
     //var grapple: Grapple!
     var grappleSprite: SKSpriteNode!
     var selectedNode: SKSpriteNode?
@@ -31,7 +32,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let joyStick = Joystick(size: 100)
     let actionButton = ActionButton(size: CGSize(width: 175, height: 175))
     let grapple = Grapple(size: 200)
-    
+
+    var backgroundMusic: AVAudioPlayer?
+
     //let topEdge = cam.position.y + (self.size.height / 2)
     /*
             let bottomEdge = self.frame.minY
@@ -44,38 +47,41 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
 
         wall1R = SKSpriteNode(imageNamed: wallImage)
-        
+
         enumerateChildNodes(withName: "Floor") { node, _ in
             if let floor = node as? SKSpriteNode {
                 floor.physicsBody = SKPhysicsBody(rectangleOf: floor.size)
                 floor.physicsBody?.isDynamic = false
-                
+
                 floor.physicsBody?.categoryBitMask = PhysicsCategory.floor
                 floor.physicsBody?.collisionBitMask =
-                PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
+                    PhysicsCategory.player | PhysicsCategory.enemy
+                    | PhysicsCategory.grapple
                 floor.physicsBody?.contactTestBitMask =
-                PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
+                    PhysicsCategory.player | PhysicsCategory.enemy
+                    | PhysicsCategory.grapple
 
             }
         }
-        
-        if let playerNode = self.childNode(withName: "player") as? SKSpriteNode {
+
+        if let playerNode = self.childNode(withName: "player") as? SKSpriteNode
+        {
             player.component(ofType: SpriteComponent.self)?.node = playerNode
-            
+
             playerNode.physicsBody?.categoryBitMask = PhysicsCategory.player
             playerNode.physicsBody?.collisionBitMask =
                 PhysicsCategory.floor | PhysicsCategory.enemy
             playerNode.physicsBody?.contactTestBitMask =
                 PhysicsCategory.enemy | PhysicsCategory.floor
         }
-        
+
         if let enemyNode = self.childNode(withName: "enemy") as? SKSpriteNode {
             enemy.component(ofType: SpriteComponent.self)?.node = enemyNode
         }
-        
+
         addChild(cam)
         self.camera = cam
-        
+
         if let sprite = player.component(ofType: SpriteComponent.self)?.node {
             let position = sprite.position
 
@@ -89,7 +95,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         joyStick.zPosition = 1
         actionButton.zPosition = 1
         grapple.zPosition = 0
-        
+
         addChild(joyStick)
         addChild(actionButton)
         addChild(grapple)
@@ -109,6 +115,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             object: nil
         )
         
+        playBackgroundMusic()
+
+    }
+
+    func playBackgroundMusic() {
+        guard let url = 
+        Bundle.main.url(forResource: "background to the max", withExtension: "wav")
+        else {
+            print("Music file not found")
+            return
+        }
+
+        do {
+            backgroundMusic = try AVAudioPlayer(contentsOf: url)
+            backgroundMusic?.numberOfLoops = -1  // loop forever
+            backgroundMusic?.volume = 0.5
+            backgroundMusic?.play()
+        } catch {
+            print("Could not load music: \(error)")
+        }
     }
 
     @objc func handleGameOver() {
@@ -120,11 +146,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //before each frame
     override func update(_ currentTime: TimeInterval) {
         player.update(deltaTime: 1 / 60)
-        
+
         enemy.update(deltaTime: 1 / 60)
 
-        guard let xPos = player.component(ofType: SpriteComponent.self)?.node.position.x else { return }
-        guard let yPos = player.component(ofType: SpriteComponent.self)?.node.position.y else { return }
+        guard
+            let xPos = player.component(ofType: SpriteComponent.self)?.node
+                .position.x
+        else { return }
+        guard
+            let yPos = player.component(ofType: SpriteComponent.self)?.node
+                .position.y
+        else { return }
 
         cam.position.x = xPos
         cam.position.y = yPos + 100
@@ -134,7 +166,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         actionButton.position.x = xPos + (size.width / 3)
         actionButton.position.y = yPos - (size.height / 10)
-        
+
         grapple.position = CGPoint(x: xPos, y: yPos)
 
     }
@@ -147,20 +179,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let bodyB = contact.bodyB.node?.name
 
         let names = [bodyA, bodyB]
-        
+
         if names.contains("grapple") && names.contains("Floor") {
-            if let grappleNode = player.component(ofType: GrappleComponent.self)?.grap {
+            if let grappleNode = player.component(
+                ofType: GrappleComponent.self
+            )?.grap {
                 grappleNode.physicsBody?.velocity = .zero
                 
             }
             player.component(ofType: GrappleComponent.self)?.canLaunchEntity = true
             player.component(ofType: GrappleComponent.self)?.grap?.removeFromParent()
         }
-        
+
         if names.contains("grapple") && names.contains("player") {
             player.component(ofType: GrappleComponent.self)?.removeGrapple()
         }
-        
+
         if names.contains("enemy") && names.contains("Floor") {
             enemy.component(ofType: JumpComponent.self)?.isJumping = false
             enemy.component(ofType: GroundPoundComponent.self)?
@@ -172,10 +206,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             player.component(ofType: GroundPoundComponent.self)?
                 .isGroundPounding = false
         }
-        
+
         if names.contains("player") && names.contains("enemy") {
-            
-            let side = collisionSide(contactPoint: contact.contactPoint, node: contact.bodyA.node!)
+
+            let side = collisionSide(
+                contactPoint: contact.contactPoint,
+                node: contact.bodyA.node!
+            )
             enemy.lastCollisionSide = side
             print(side)
         }
@@ -190,7 +227,7 @@ enum CollisionSide {
     case bottom
     case left
     case right
-    
+
     case reset
 }
 
