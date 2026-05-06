@@ -73,10 +73,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 PhysicsCategory.floor | PhysicsCategory.enemy
             playerNode.physicsBody?.contactTestBitMask =
                 PhysicsCategory.enemy | PhysicsCategory.floor
+            
+            player.component(ofType: HealthComponent.self)?.attachHealthBar(to: playerNode)
+
         }
 
         if let enemyNode = self.childNode(withName: "enemy") as? SKSpriteNode {
             enemy.component(ofType: SpriteComponent.self)?.node = enemyNode
+            
+            enemy.component(ofType: HealthComponent.self)?.attachHealthBar(to: enemyNode)
+
         }
 
         addChild(cam)
@@ -208,14 +214,40 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         if names.contains("player") && names.contains("enemy") {
 
-            let side = collisionSide(
-                contactPoint: contact.contactPoint,
-                node: contact.bodyA.node!
-            )
-            enemy.lastCollisionSide = side
-            print(side)
-        }
+            guard
+                let playerNode = player.component(ofType: SpriteComponent.self)?.node,
+                let enemyNode = enemy.component(ofType: SpriteComponent.self)?.node
+            else { return }
 
+            // Always check side relative to the enemy node
+            let side = collisionSide(contactPoint: contact.contactPoint, node: enemyNode)
+            enemy.lastCollisionSide = side
+            print("Collision side: \(side)")
+
+            switch side {
+            case .top:
+                // Player landed on enemy's head
+                enemy.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
+                // Bounce player up
+                playerNode.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 350))
+                player.component(ofType: JumpComponent.self)?.isJumping = true
+
+            case .bottom:
+                // Enemy landed on player
+                player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
+                let knockbackDir: CGFloat = playerNode.position.x > enemyNode.position.x ? 1 : -1
+                playerNode.physicsBody?.applyImpulse(CGVector(dx: 250 * knockbackDir, dy: 150))
+
+            case .left, .right:
+                // Side collision — player walks into enemy
+                player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
+                let knockbackDir: CGFloat = playerNode.position.x > enemyNode.position.x ? 1 : -1
+                playerNode.physicsBody?.applyImpulse(CGVector(dx: 250 * knockbackDir, dy: 150))
+
+            case .reset:
+                break
+            }
+        }
     }
 
 }
