@@ -5,13 +5,15 @@
 //  Created by DIEGO CHAVEZ on 4/21/26.
 //
 
+internal import AVFAudio
 import SpriteKit
 import SwiftUI
 
 struct TitleView: View {
     @State var showGame = false
+    @State var audio = AudioManegement()
     var body: some View {
-        
+        NavigationView {
             ZStack {
                 Color.orange.ignoresSafeArea()
 
@@ -21,6 +23,7 @@ struct TitleView: View {
 
                     Button {
                         showGame = true
+                        audio.audioPlayer?.stop()
                     } label: {
                         ZStack {
                             Rectangle()
@@ -32,12 +35,27 @@ struct TitleView: View {
                                 .foregroundColor(.white)
                         }
                     }
+                    NavigationLink(destination: SettingsView()) {
+                        ZStack {
+                            Rectangle()
+                                .frame(width: 200, height: 50)
+                                .foregroundColor(.black)
+
+                            Text("SETTINGS")
+                                .font(.custom("MortalKombat-Regular", size: 10))
+                                .foregroundColor(.white)
+                        }
+                    }
                 }
             }
-            .fullScreenCover(isPresented: $showGame) {
-                GameViewControllerRepresentable()
-            }
-        
+        }
+        .fullScreenCover(isPresented: $showGame) {
+            GameViewControllerRepresentable()
+        }
+        .onAppear {
+            audio.playSound(sound: "!BvD", type: "wav")
+        }
+
     }
     init() {
         for familyName in UIFont.familyNames {
