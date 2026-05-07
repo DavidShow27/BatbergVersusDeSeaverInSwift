@@ -259,21 +259,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     // Foot burning
                     player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
                     // Bounce player up
-                    playerNode.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 350))
+                    playerNode.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 3050))
                     player.component(ofType: JumpComponent.self)?.isJumping = true
 
                 case .top:
-                    //  landed on player
+                    //  Roof hit
                     player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
-                    let knockbackDir: CGFloat = playerNode.position.x > enemyNode.position.x ? 1 : -1
-                    playerNode.physicsBody?.applyImpulse(CGVector(dx: 250 * knockbackDir, dy: 150))
+                    
+                    playerNode.physicsBody?.applyImpulse(CGVector(dx: 0, dy: -1050))
 
-                case .left, .right:
-                    // Side collision — player walks into el fuego
+                case .left:
+                    //  player walks into el fuego left
                     player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
-                    let knockbackDir: CGFloat = playerNode.position.x > enemyNode.position.x ? 1 : -1
-                    playerNode.physicsBody?.applyImpulse(CGVector(dx: 250 * knockbackDir, dy: 150))
-
+      
+                    playerNode.physicsBody?.applyImpulse(CGVector(dx: 1000, dy: 50))
+                    
+                case .right:
+                    //  player walks into el fuego right
+                    player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
+      
+                    playerNode.physicsBody?.applyImpulse(CGVector(dx: 1000, dy: 50))
+                    
                 case .reset:
                     break
                 }
