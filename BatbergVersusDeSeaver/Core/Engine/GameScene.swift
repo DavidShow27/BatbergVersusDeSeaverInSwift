@@ -28,6 +28,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var touchStartPoint: CGPoint?
 
     let cam = SKCameraNode()
+    
+    var spawnPoint: CGPoint = .zero
 
     let joyStick = Joystick(size: 100)
     let actionButton = ActionButton(size: CGSize(width: 175, height: 175))
@@ -67,6 +69,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if let playerNode = self.childNode(withName: "player") as? SKSpriteNode
         {
             player.component(ofType: SpriteComponent.self)?.node = playerNode
+            spawnPoint = playerNode.position
 
             playerNode.physicsBody?.categoryBitMask = PhysicsCategory.player
             playerNode.physicsBody?.collisionBitMask =
@@ -116,7 +119,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(handleGameOver),
+            selector: #selector(handlePlayerDied),
             name: .playerDied,
             object: nil
         )
@@ -143,10 +146,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
 
-    @objc func handleGameOver() {
-        // Pause the scene, show UI, etc.
-        self.isPaused = true
-        print("GAME OVER")
+    @objc func handlePlayerDied() {
+        guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
+
+        playerNode.physicsBody?.velocity = .zero
+        playerNode.position = spawnPoint
+
+        let health = player.component(ofType: HealthComponent.self)
+        health?.health = health?.maxHealth ?? 3
+        health?.isDead = false
+        health?.updateHealthBar()
     }
 
     //before each frame
