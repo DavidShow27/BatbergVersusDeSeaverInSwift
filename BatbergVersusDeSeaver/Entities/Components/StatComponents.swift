@@ -74,6 +74,15 @@ class HealthComponent: GKComponent {
 
     var health: Int
     var maxHealth: Int
+    
+    var isPlayer: Bool = false
+
+    init(health: Int, isPlayer: Bool = false) {
+        self.health = health
+        self.maxHealth = health
+        self.isPlayer = isPlayer
+        super.init()
+    }
 
     init(health: Int) {
         self.health = health
@@ -89,13 +98,7 @@ class HealthComponent: GKComponent {
     let barWidth: CGFloat = 80
     let barHeight: CGFloat = 10
 
-    /*override func didAddToEntity() {
-        guard let node = entity?.component(ofType: SpriteComponent.self)?.node
-        else { return }
-        setupHealthBar(on: node)
-    }*/
-
-    private func updateHealthBar() {
+    func updateHealthBar() {
         let percent = CGFloat(health) / CGFloat(maxHealth)
         _ = barWidth * percent
 
@@ -156,17 +159,13 @@ class HealthComponent: GKComponent {
     }
 
     func die() {
-        guard let node = entity?.component(ofType: SpriteComponent.self)?.node
-        else { return }
-
-        if entity is Player {
-            print("Player died — trigger game over")
-            node.removeFromParent()
-            // Post a notification to show Game Over UI from your scene
+        print("isPlayer: \(isPlayer)")
+        if isPlayer {
+            print("Player died: trigger respawn")
             NotificationCenter.default.post(name: .playerDied, object: nil)
-        } else if entity is Enemy {
+        } else {
             print("Enemy died")
-            node.removeFromParent()
+            entity?.component(ofType: SpriteComponent.self)?.node.removeFromParent()
         }
     }
 
