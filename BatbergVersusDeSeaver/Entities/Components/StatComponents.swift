@@ -89,37 +89,11 @@ class HealthComponent: GKComponent {
     let barWidth: CGFloat = 80
     let barHeight: CGFloat = 10
 
-    override func didAddToEntity() {
+    /*override func didAddToEntity() {
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node
         else { return }
         setupHealthBar(on: node)
-    }
-
-    private func setupHealthBar(on node: SKSpriteNode) {
-        // Gray background bar
-        let background = SKShapeNode(
-            rectOf: CGSize(width: barWidth, height: barHeight),
-            cornerRadius: 3
-        )
-        background.fillColor = .darkGray
-        background.strokeColor = .clear
-        background.position = CGPoint(x: 0, y: node.size.height / 2 + 15)
-        background.zPosition = 10
-        node.addChild(background)
-        healthBarBackground = background
-
-        // Green fill bar
-        let fill = SKShapeNode(
-            rectOf: CGSize(width: barWidth, height: barHeight),
-            cornerRadius: 3
-        )
-        fill.fillColor = .green
-        fill.strokeColor = .clear
-        fill.position = CGPoint(x: 0, y: node.size.height / 2 + 15)
-        fill.zPosition = 11
-        node.addChild(fill)
-        healthBarFill = fill
-    }
+    }*/
 
     private func updateHealthBar() {
         let percent = CGFloat(health) / CGFloat(maxHealth)
@@ -138,9 +112,40 @@ class HealthComponent: GKComponent {
             healthBarFill?.fillColor = .red
         }
     }
+    
+    func attachHealthBar(to node: SKSpriteNode) {
+        // Remove any existing bars first to avoid duplicates
+        healthBarBackground?.removeFromParent()
+        healthBarFill?.removeFromParent()
+
+        let background = SKShapeNode(
+            rectOf: CGSize(width: barWidth, height: barHeight),
+            cornerRadius: 3
+        )
+        background.fillColor = .darkGray
+        background.strokeColor = .clear
+        background.position = CGPoint(x: 0, y: node.size.height / 2 + 15)
+        background.zPosition = 10
+        node.addChild(background)
+        healthBarBackground = background
+
+        let fill = SKShapeNode(
+            rectOf: CGSize(width: barWidth, height: barHeight),
+            cornerRadius: 3
+        )
+        fill.fillColor = .green
+        fill.strokeColor = .clear
+        fill.position = CGPoint(x: 0, y: node.size.height / 2 + 15)
+        fill.zPosition = 11
+        node.addChild(fill)
+        healthBarFill = fill
+    }
+
+    var isDead = false
 
     override func update(deltaTime seconds: TimeInterval) {
-        if health <= 0 {
+        if health <= 0 && !isDead {
+            isDead = true
             die()
         }
     }
