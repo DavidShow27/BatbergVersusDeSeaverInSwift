@@ -259,10 +259,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 break
             }
             
-            if names.contains("Fire") && names.contains("player"){
-                player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
-                playerNode.physicsBody?.applyImpulse(CGVector(dx: 0.0, dy: 1000.0))
-            }
+           
+        }
+        if names.contains("Fire") && names.contains("player"){
+            guard
+                let playerNode = player.component(ofType: SpriteComponent.self)?.node
+                
+            else { return }
+            player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
+            playerNode.physicsBody?.applyImpulse(CGVector(dx: 0.0, dy: 100.0))
+        }
+        
+        if names.contains("tramp0") && names.contains("player"){
+            guard
+                let playerNode = player.component(ofType: SpriteComponent.self)?.node
+                
+            else { return }
+           
+            playerNode.physicsBody?.applyImpulse(CGVector(dx: 0.0, dy: 1500.0))
         }
     }
 
