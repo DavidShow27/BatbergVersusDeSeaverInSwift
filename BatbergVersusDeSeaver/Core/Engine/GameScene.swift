@@ -258,9 +258,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 break
             }
             
-            if names.contains("player") && names.contains("Fire"){
+            if names.contains("Fire") && names.contains("player"){
                 player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
-                playerNode.physicsBody?.velocity.dy = 1000
+                playerNode.physicsBody?.applyImpulse(CGVector(dx: 0.0, dy: 1000.0))
             }
         }
     }
