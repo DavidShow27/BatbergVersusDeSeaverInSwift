@@ -259,40 +259,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
             
             if names.contains("player") && names.contains("Fire"){
-                let side = collisionSide(contactPoint: contact.contactPoint, node: enemyNode)
-                enemy.lastCollisionSide = side
-                print("Collision side: \(side)")
-
-                switch side {
-                case .bottom:
-                    // Foot burning
-                    player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
-                    // Bounce player up
-                    playerNode.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 3050))
-                    player.component(ofType: JumpComponent.self)?.isJumping = true
-
-                case .top:
-                    //  Roof hit
-                    player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
-                    
-                    playerNode.physicsBody?.applyImpulse(CGVector(dx: 0, dy: -1050))
-
-                case .left:
-                    //  player walks into el fuego left
-                    player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
-      
-                    playerNode.physicsBody?.applyImpulse(CGVector(dx: 1000, dy: 50))
-                    
-                case .right:
-                    //  player walks into el fuego right
-                    player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
-      
-                    playerNode.physicsBody?.applyImpulse(CGVector(dx: 1000, dy: 50))
-                    
-                case .reset:
-                    break
-                }
-                
+                player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
+                playerNode.physicsBody?.velocity.dy = 1000
             }
         }
     }

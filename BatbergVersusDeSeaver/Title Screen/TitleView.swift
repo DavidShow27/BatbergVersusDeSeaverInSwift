@@ -35,7 +35,7 @@ struct TitleView: View {
                                 .foregroundColor(.white)
                         }
                     }
-                    NavigationLink(destination: SettingsView()) {
+                    NavigationLink(destination: SettingsView( audio: $audio)) {
                         ZStack {
                             Rectangle()
                                 .frame(width: 200, height: 50)
