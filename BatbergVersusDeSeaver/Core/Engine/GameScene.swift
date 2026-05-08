@@ -251,7 +251,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
             case .left, .right:
                 // Side collision — player walks into enemy
-                player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
+                //player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
                 let knockbackDir: CGFloat = playerNode.position.x > enemyNode.position.x ? 1 : -1
                 playerNode.physicsBody?.applyImpulse(CGVector(dx: 250 * knockbackDir, dy: 150))
 
