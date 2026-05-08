@@ -155,6 +155,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let health = player.component(ofType: HealthComponent.self)
         health?.health = health?.maxHealth ?? 3
         health?.isDead = false
+        health?.healingTimer = 0 // resets the healing timer
         health?.updateHealthBar()
     }
 

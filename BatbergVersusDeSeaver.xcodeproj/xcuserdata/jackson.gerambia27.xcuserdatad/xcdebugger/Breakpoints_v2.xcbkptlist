@@ -14,10 +14,40 @@
             filePath = "BatbergVersusDeSeaver/Entities/Components/StatComponents.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "160"
-            endingLineNumber = "160"
+            startingLineNumber = "175"
+            endingLineNumber = "175"
             landmarkName = "HealthComponent"
             landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "E9C1FF57-4ACC-41C0-AE42-A78D9084008A - 263e22eb93103c78"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "BatbergVersusDeSeaver.HealthComponent.die() -&gt; ()"
+                  moduleName = "BatbergVersusDeSeaver.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jackson.gerambia27/Documents/BatbergVersusDeSeaver/BatbergVersusDeSeaver/Entities/Components/StatComponents.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "162"
+                  endingLineNumber = "162">
+               </Location>
+               <Location
+                  uuid = "E9C1FF57-4ACC-41C0-AE42-A78D9084008A - 263e22eb93103e49"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "BatbergVersusDeSeaver.HealthComponent.die() -&gt; ()"
+                  moduleName = "BatbergVersusDeSeaver.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/jackson.gerambia27/Documents/BatbergVersusDeSeaver/BatbergVersusDeSeaver/Entities/Components/StatComponents.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "177"
+                  endingLineNumber = "177">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

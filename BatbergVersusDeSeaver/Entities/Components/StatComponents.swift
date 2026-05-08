@@ -146,10 +146,25 @@ class HealthComponent: GKComponent {
 
     var isDead = false
 
+    var healingTimer: TimeInterval = 0
+    // Heal 1hp every 30 seconds
+    let healingInterval: TimeInterval = 30
+
     override func update(deltaTime seconds: TimeInterval) {
         if health <= 0 && !isDead {
             isDead = true
             die()
+        }
+        
+        // Only heal if not at max health
+        if health < maxHealth && !isDead {
+            healingTimer += seconds
+            if healingTimer >= healingInterval {
+                health += 1
+                updateHealthBar()
+                healingTimer = 0
+                print("Healed! Health: \(health)")
+            }
         }
     }
 
