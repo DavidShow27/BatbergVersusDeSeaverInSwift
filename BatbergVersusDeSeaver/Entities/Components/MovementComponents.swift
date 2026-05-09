@@ -40,17 +40,16 @@ class MovementComponent: GKComponent {
 
 class JumpComponent: GKComponent {
 
-    var jumpStrength: CGFloat = 400
+    var jumpStrength: CGFloat = 1000
     var isJumping: Bool = false
 
     func jump() {
-
         if isJumping { return }
 
         guard let node = entity?.component(ofType: SpriteComponent.self)?.node
         else { return }
         isJumping = true
-        node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: jumpStrength))
+        node.physicsBody?.velocity.dy = jumpStrength
     }
 }
 // When health is added
@@ -134,7 +133,7 @@ class CrouchComponent: GKComponent {
 
 class SlideComponent: GKComponent {
 
-    var slideStrength: CGFloat = 400
+    var slideStrength: CGFloat = 1500
     var isSliding: Bool = false
 
     func slide() {
@@ -143,9 +142,9 @@ class SlideComponent: GKComponent {
         guard let dir = entity?.component(ofType: MovementComponent.self)?.velocity.dx else { return }
 
         if dir > 0 {
-            body.applyImpulse(CGVector(dx: slideStrength, dy: .zero))
+            body.velocity.dx = slideStrength
         } else {
-            body.applyImpulse(CGVector(dx: -slideStrength, dy: .zero))
+            body.velocity.dx = -slideStrength
         }
         isSliding = true
     }

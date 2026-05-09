@@ -143,10 +143,10 @@ class AttackState: GKState {
         
         switch entity.lastCollisionSide {
         case .top:
-            entity.component(ofType: SlideComponent.self)?.slide()
-        case .bottom:
             entity.component(ofType: FollowEntityComponent.self)?.follow = false
             entity.component(ofType: FollowEntityComponent.self)?.flee = true
+        case .bottom:
+            entity.component(ofType: SlideComponent.self)?.slide()
         case .left:
             entity.component(ofType: JumpComponent.self)?.jump()
         case .right:

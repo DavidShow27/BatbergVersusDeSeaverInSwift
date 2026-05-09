@@ -20,7 +20,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     var player = Player.shared
 
-    var enemy = Enemy.shared
+    var enemies: [Enemy] = []
 
     //var grapple: Grapple!
     var grappleSprite: SKSpriteNode!
@@ -28,7 +28,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var touchStartPoint: CGPoint?
 
     let cam = SKCameraNode()
-    
+
     var spawnPoint: CGPoint = .zero
 
     let joyStick = Joystick(size: 100)
@@ -76,16 +76,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 PhysicsCategory.floor | PhysicsCategory.enemy
             playerNode.physicsBody?.contactTestBitMask =
                 PhysicsCategory.enemy | PhysicsCategory.floor
-            
-            player.component(ofType: HealthComponent.self)?.attachHealthBar(to: playerNode)
+
+            player.component(ofType: HealthComponent.self)?.attachHealthBar(
+                to: playerNode
+            )
 
         }
 
-        if let enemyNode = self.childNode(withName: "enemy") as? SKSpriteNode {
-            enemy.component(ofType: SpriteComponent.self)?.node = enemyNode
-            
-            enemy.component(ofType: HealthComponent.self)?.attachHealthBar(to: enemyNode)
+        enumerateChildNodes(withName: "enemy*") { node, _ in
+            let enemy = Enemy()
+            if let spriteNode = enemy.component(ofType: SpriteComponent.self)?
+                .node
+            {
+                spriteNode.position = node.position
+                spriteNode.size.width = node.frame.width
+                spriteNode.size.height = node.frame.height
 
+                spriteNode.physicsBody?.categoryBitMask = PhysicsCategory.enemy
+                spriteNode.physicsBody?.collisionBitMask =
+                    PhysicsCategory.floor | PhysicsCategory.player
+                spriteNode.physicsBody?.contactTestBitMask =
+                    PhysicsCategory.player | PhysicsCategory.floor
+
+                self.addChild(spriteNode)
+                enemy.component(ofType: PhysicsComponent.self)?.applyPhysics(
+                    to: spriteNode
+                )
+                enemy.component(ofType: HealthComponent.self)?.attachHealthBar(
+                    to: spriteNode
+                )
+            }
+
+            node.removeFromParent()
+            self.enemies.append(enemy)
         }
 
         addChild(cam)
@@ -123,14 +146,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             name: .playerDied,
             object: nil
         )
-        
+
         playBackgroundMusic()
 
     }
 
     func playBackgroundMusic() {
-        guard let url = 
-        Bundle.main.url(forResource: "background to the max", withExtension: "wav")
+        guard
+            let url =
+                Bundle.main.url(
+                    forResource: "background to the max",
+                    withExtension: "wav"
+                )
         else {
             print("Music file not found")
             return
@@ -147,7 +174,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     @objc func handlePlayerDied() {
-        guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
+        guard
+            let playerNode = player.component(ofType: SpriteComponent.self)?
+                .node
+        else { return }
 
         playerNode.physicsBody?.velocity = .zero
         playerNode.position = spawnPoint
@@ -155,7 +185,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let health = player.component(ofType: HealthComponent.self)
         health?.health = health?.maxHealth ?? 3
         health?.isDead = false
-        health?.healingTimer = 0 // resets the healing timer
+        health?.healingTimer = 0  // resets the healing timer
         health?.updateHealthBar()
     }
 
@@ -163,7 +193,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         player.update(deltaTime: 1 / 60)
 
-        enemy.update(deltaTime: 1 / 60)
+        for enemy in enemies {
+            enemy.update(deltaTime: 1 / 60)
+        }
 
         guard
             let xPos = player.component(ofType: SpriteComponent.self)?.node
@@ -196,25 +228,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         let names = [bodyA, bodyB]
 
+        let involvedEnemy = enemies.first { enemy in
+            let enemyNode = enemy.component(ofType: SpriteComponent.self)?.node
+            return contact.bodyA.node === enemyNode
+                || contact.bodyB.node === enemyNode
+        }
+
         if names.contains("grapple") && names.contains("Floor") {
             if let grappleNode = player.component(
                 ofType: GrappleComponent.self
             )?.grap {
                 grappleNode.physicsBody?.velocity = .zero
-                
+
             }
-            player.component(ofType: GrappleComponent.self)?.canLaunchEntity = true
-            player.component(ofType: GrappleComponent.self)?.grap?.removeFromParent()
+            player.component(ofType: GrappleComponent.self)?.canLaunchEntity =
+                true
+            player.component(ofType: GrappleComponent.self)?.grap?
+                .removeFromParent()
         }
 
         if names.contains("grapple") && names.contains("player") {
             player.component(ofType: GrappleComponent.self)?.removeGrapple()
-        }
-
-        if names.contains("enemy") && names.contains("Floor") {
-            enemy.component(ofType: JumpComponent.self)?.isJumping = false
-            enemy.component(ofType: GroundPoundComponent.self)?
-                .isGroundPounding = false
         }
 
         if names.contains("player") && names.contains("Floor") {
@@ -223,59 +257,82 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 .isGroundPounding = false
         }
 
-        if names.contains("player") && names.contains("enemy") {
+        if let enemy = involvedEnemy, names.contains("Floor") {
+            enemy.component(ofType: JumpComponent.self)?.isJumping = false
+            enemy.component(ofType: GroundPoundComponent.self)?
+                .isGroundPounding = false
+        }
+
+        if let enemy = involvedEnemy, names.contains("player") {
 
             guard
-                let playerNode = player.component(ofType: SpriteComponent.self)?.node,
-                let enemyNode = enemy.component(ofType: SpriteComponent.self)?.node
+                let playerNode = player.component(ofType: SpriteComponent.self)?
+                    .node
             else { return }
+            guard
+                let enemyNode = enemy.component(ofType: SpriteComponent.self)?
+                    .node
+            else { return }
+            let side = collisionSide(nodeA: enemyNode, nodeB: playerNode)
 
-            // Always check side relative to the enemy node
-            let side = collisionSide(contactPoint: contact.contactPoint, node: enemyNode)
             enemy.lastCollisionSide = side
             print("Collision side: \(side)")
 
             switch side {
             case .top:
                 // Player landed on enemy's head
-                enemy.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
+                enemy.component(ofType: HealthComponent.self)?.takeDamage(
+                    ammount: 1
+                )
                 // Bounce player up
                 playerNode.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 350))
-                player.component(ofType: JumpComponent.self)?.isJumping = true
+                player.component(ofType: JumpComponent.self)?.isJumping = false
 
             case .bottom:
                 // Enemy landed on player
-                player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
-                let knockbackDir: CGFloat = playerNode.position.x > enemyNode.position.x ? 1 : -1
-                playerNode.physicsBody?.applyImpulse(CGVector(dx: 250 * knockbackDir, dy: 150))
+                player.component(ofType: HealthComponent.self)?.takeDamage(
+                    ammount: 1
+                )
+                let knockbackDir: CGFloat =
+                    playerNode.position.x > enemyNode.position.x ? 1 : -1
+                playerNode.physicsBody?.applyImpulse(
+                    CGVector(dx: 250 * knockbackDir, dy: 150)
+                )
 
             case .left, .right:
                 // Side collision — player walks into enemy
                 //player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
-                let knockbackDir: CGFloat = playerNode.position.x > enemyNode.position.x ? 1 : -1
-                playerNode.physicsBody?.applyImpulse(CGVector(dx: 250 * knockbackDir, dy: 150))
+                let knockbackDir: CGFloat =
+                    playerNode.position.x > enemyNode.position.x ? 1 : -1
+                playerNode.physicsBody?.applyImpulse(
+                    CGVector(dx: 250 * knockbackDir, dy: 150)
+                )
 
             case .reset:
                 break
             }
-            
-           
+
         }
-        if names.contains("Fire") && names.contains("player"){
+
+        if names.contains("Fire") && names.contains("player") {
             guard
-                let playerNode = player.component(ofType: SpriteComponent.self)?.node
-                
+                let playerNode = player.component(ofType: SpriteComponent.self)?
+                    .node
+
             else { return }
-            player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
+            player.component(ofType: HealthComponent.self)?.takeDamage(
+                ammount: 1
+            )
             playerNode.physicsBody?.applyImpulse(CGVector(dx: 0.0, dy: 100.0))
         }
-        
-        if names.contains("tramp0") && names.contains("player"){
+
+        if names.contains("tramp0") && names.contains("player") {
             guard
-                let playerNode = player.component(ofType: SpriteComponent.self)?.node
-                
+                let playerNode = player.component(ofType: SpriteComponent.self)?
+                    .node
+
             else { return }
-           
+
             playerNode.physicsBody?.applyImpulse(CGVector(dx: 0.0, dy: 1500.0))
         }
     }
@@ -293,18 +350,31 @@ enum CollisionSide {
 }
 
 // returns the enum, not the component
-func collisionSide(contactPoint: CGPoint, node: SKNode) -> CollisionSide {
-    let dx = contactPoint.x - node.position.x
-    let dy = contactPoint.y - node.position.y
-    // check magnitudes of each value
-    if abs(dx) > abs(dy) {
-        // compare x side
+func collisionSide(nodeA: SKNode, nodeB: SKNode) -> CollisionSide {
+    
+    let dx = nodeB.position.x - nodeA.position.x
+    let dy = nodeB.position.y - nodeA.position.y
+
+    // essentially create a collisionX and collisionY
+    let halfWidths = (nodeA.frame.width + nodeB.frame.width) / 2
+    let halfHeights = (nodeA.frame.height + nodeB.frame.height) / 2
+
+    // How much overlap on each axis
+    let overlapX = halfWidths - abs(dx)
+    let overlapY = halfHeights - abs(dy)
+
+    let threshold: CGFloat = 10
+
+    // Corner check
+    if abs(overlapX - overlapY) < threshold {
+        return .reset
+    }
+
+    // Whichever axis has less overlap is the side that was hit
+    if overlapX < overlapY {
         return dx > 0 ? .right : .left
     } else {
-        // compare y side
         return dy > 0 ? .top : .bottom
     }
 
 }
-
-

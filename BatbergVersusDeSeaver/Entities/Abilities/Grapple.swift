@@ -26,7 +26,8 @@ class Grapple: SKNode {
         outerRadius = size * 2
 
         playerRadius = SKShapeNode(circleOfRadius: innerRadius)
-
+        playerRadius.strokeColor = .clear
+        
         trajectory = SKShapeNode()
 
         super.init()
