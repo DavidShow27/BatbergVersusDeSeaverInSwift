@@ -13,6 +13,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     var wallImage = ""
     var floorImage = ""
+    
+    var background = SKSpriteNode()
 
     var floor1 = SKSpriteNode()
     var wall1R = SKSpriteNode()
@@ -49,6 +51,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
 
         wall1R = SKSpriteNode(imageNamed: wallImage)
+        
+        background = SKSpriteNode(imageNamed: "background")
+        background.size = self.size
+        background.zPosition = -1
+        addChild(background)
 
         enumerateChildNodes(withName: "Floor") { node, _ in
             if let floor = node as? SKSpriteNode {
@@ -205,6 +212,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let yPos = player.component(ofType: SpriteComponent.self)?.node
                 .position.y
         else { return }
+        
+        background.position = CGPoint(x: xPos, y: yPos + 100)
 
         cam.position.x = xPos
         cam.position.y = yPos + 100
