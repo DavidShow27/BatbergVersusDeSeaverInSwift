@@ -254,6 +254,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if names.contains("grapple") && names.contains("player") {
             player.component(ofType: GrappleComponent.self)?.removeGrapple()
         }
+        if names.contains("bullet") && names.contains("Floor") {
+
+            if let bulletNode = player.component(ofType: Bullet.self)?.bull {
+                bulletNode.physicsBody?.velocity = .zero
+            }
+
+            player.component(ofType: Bullet.self)?.bull?
+                .removeFromParent()
+        }
+
+        if names.contains("bullet"), let enemy = involvedEnemy, names.contains(enemy.component(ofType: SpriteComponent.self)?.node.name ?? ""){
+            enemy.component(ofType: HealthComponent.self)?.takeDamage(
+                ammount: 1
+            )
+        }
 
         if names.contains("player") && names.contains("Floor") {
             player.component(ofType: JumpComponent.self)?.isJumping = false
