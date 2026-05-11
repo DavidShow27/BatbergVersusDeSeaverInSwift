@@ -8,7 +8,7 @@
 import Foundation
 import GameplayKit
 
-class Bullet: GKComponent {
+class BulletComponent: GKComponent {
     var bull: SKSpriteNode?
     let velocity = CGVector(dx: 600, dy: 0)
 
