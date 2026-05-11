@@ -57,33 +57,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         background.zPosition = -1
         addChild(background)
 
-        enumerateChildNodes(withName: "Floor") { node, _ in
-            if let floor = node as? SKSpriteNode {
-                floor.physicsBody = SKPhysicsBody(rectangleOf: floor.size)
-                floor.physicsBody?.isDynamic = false
-
-                floor.physicsBody?.categoryBitMask = PhysicsCategory.floor
-                floor.physicsBody?.collisionBitMask =
-                    PhysicsCategory.player | PhysicsCategory.enemy
-                    | PhysicsCategory.grapple
-                floor.physicsBody?.contactTestBitMask =
-                    PhysicsCategory.player | PhysicsCategory.enemy
-                    | PhysicsCategory.grapple
-
-            }
+        enumerateChildNodes(withName: "Floor") { sksNode, _ in
+            guard let newNode = self.makeFloor(sksNode) else { return }
+            newNode.position = sksNode.position
+            newNode.zRotation = sksNode.zRotation
+            self.addChild(newNode)
+            sksNode.removeFromParent()
         }
 
         if let playerNode = self.childNode(withName: "player") as? SKSpriteNode
         {
             player.component(ofType: SpriteComponent.self)?.node = playerNode
             spawnPoint = playerNode.position
-
             playerNode.physicsBody?.categoryBitMask = PhysicsCategory.player
             playerNode.physicsBody?.collisionBitMask =
                 PhysicsCategory.floor | PhysicsCategory.enemy
             playerNode.physicsBody?.contactTestBitMask =
                 PhysicsCategory.enemy | PhysicsCategory.floor
-
             player.component(ofType: HealthComponent.self)?.attachHealthBar(
                 to: playerNode
             )
@@ -156,6 +146,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         playBackgroundMusic()
 
+    }
+
+    // Each maker function builds the proper coded node
+    func makeFloor(_ sksNode: SKNode) -> SKNode? {
+        guard let sprite = sksNode as? SKSpriteNode else { return nil }
+        let floor = SKSpriteNode(imageNamed: "Concrete")
+        floor.size = sprite.size
+        floor.name = "Floor"
+        floor.physicsBody = SKPhysicsBody(rectangleOf: floor.size)
+        floor.physicsBody?.isDynamic = false
+        floor.physicsBody?.categoryBitMask = PhysicsCategory.floor
+        floor.physicsBody?.collisionBitMask = PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
+        floor.physicsBody?.contactTestBitMask = PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
+        return floor
     }
 
     func playBackgroundMusic() {
