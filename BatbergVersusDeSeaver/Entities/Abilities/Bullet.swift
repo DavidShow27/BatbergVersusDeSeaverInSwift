@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Gameplaykit
+import GameplayKit
 
 class Bullet: GKComponent {
     var bull: SKSpriteNode?
@@ -40,11 +40,11 @@ class Bullet: GKComponent {
     }
     func fire(in scene: SKScene){
         guard let bull = bull else { return }
-        
-        let move = SKAction.move(by: velocity, duration: 1)
-        let remove = SKAction.removeFromParent()
-        bull.run(SKAction.sequence([move, remove]))
-
         scene.addChild(bull)
+
+        let move = SKAction.move(by: velocity, duration: 1)
+        let repeatMove = SKAction.repeatForever(move)
+
+        bull.run(repeatMove)
     }
 }
