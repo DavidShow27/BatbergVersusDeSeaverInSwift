@@ -67,15 +67,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         if let playerNode = self.childNode(withName: "player") as? SKSpriteNode {
             player.component(ofType: SpriteComponent.self)?.node = playerNode
+            player.component(ofType: HealthComponent.self)?.attachHealthBar(to: playerNode)
             spawnPoint = playerNode.position
-            playerNode.physicsBody?.categoryBitMask = PhysicsCategory.player
-            playerNode.physicsBody?.collisionBitMask =
-                PhysicsCategory.floor | PhysicsCategory.enemy
-            playerNode.physicsBody?.contactTestBitMask =
-                PhysicsCategory.enemy | PhysicsCategory.floor
-            player.component(ofType: HealthComponent.self)?.attachHealthBar(
-                to: playerNode
-            )
         }
 
         enumerateChildNodes(withName: "enemy*") { sksNode, _ in
@@ -128,9 +121,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // Each maker function builds the proper coded node
     func makeFloor(_ sksNode: SKNode) -> SKNode? {
         guard let sprite = sksNode as? SKSpriteNode else { return nil }
-        let floor = SKSpriteNode(imageNamed: "Concrete")
+        let floor = SKSpriteNode(imageNamed: "concrete center")
         floor.size = sprite.size
+        floor.centerRect = CGRect(x: 0.25, y: 0.25, width: 0.5, height: 0.5)
         floor.name = "Floor"
+        
         floor.physicsBody = SKPhysicsBody(rectangleOf: floor.size)
         floor.physicsBody?.isDynamic = false
         floor.physicsBody?.categoryBitMask = PhysicsCategory.floor
@@ -149,12 +144,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         spriteNode.size.width = sksNode.frame.width
         spriteNode.size.height = sksNode.frame.height
-
-        spriteNode.physicsBody?.categoryBitMask = PhysicsCategory.enemy
-        spriteNode.physicsBody?.collisionBitMask =
-            PhysicsCategory.floor | PhysicsCategory.player
-        spriteNode.physicsBody?.contactTestBitMask =
-            PhysicsCategory.player | PhysicsCategory.floor
 
         enemy.component(ofType: PhysicsComponent.self)?.applyPhysics(to: spriteNode)
         enemy.component(ofType: HealthComponent.self)?.attachHealthBar(to: spriteNode)

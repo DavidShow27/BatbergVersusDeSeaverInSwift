@@ -70,6 +70,13 @@ class FollowEntityComponent: GKComponent {
     }
 
     override func update(deltaTime seconds: TimeInterval) {
+        
+        if velocity.dx > 0 {
+            sprite?.node.xScale = 1
+        } else if velocity.dx < 0 {
+            sprite?.node.xScale = -1
+        }
+        
         if follow {
             followEntity(who: who)
             move?.velocity = velocity
