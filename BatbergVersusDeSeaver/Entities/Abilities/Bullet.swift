@@ -6,9 +6,11 @@
 //
 
 import Foundation
+import Gameplaykit
 
 class Bullet: GKComponent {
     var bull: SKSpriteNode?
+    let velocity = CGVector(dx: 600, dy: 0)
 
     override func didAddToEntity() {
 
@@ -35,5 +37,14 @@ class Bullet: GKComponent {
             bull?.name = "bullet"
         }
 
+    }
+    func fire(in scene: SKScene){
+        guard let bull = bull else { return }
+        
+        let move = SKAction.move(by: velocity, duration: 1)
+        let remove = SKAction.removeFromParent()
+        bull.run(SKAction.sequence([move, remove]))
+
+        scene.addChild(bull)
     }
 }
