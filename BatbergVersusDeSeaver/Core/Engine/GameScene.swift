@@ -13,7 +13,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     var wallImage = ""
     var floorImage = ""
-    
+
     var background = SKSpriteNode()
 
     var floor1 = SKSpriteNode()
@@ -51,7 +51,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
 
         wall1R = SKSpriteNode(imageNamed: wallImage)
-        
+
         background = SKSpriteNode(imageNamed: "background")
         background.size = self.size
         background.zPosition = -1
@@ -65,8 +65,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             sksNode.removeFromParent()
         }
 
-        if let playerNode = self.childNode(withName: "player") as? SKSpriteNode
-        {
+        if let playerNode = self.childNode(withName: "player") as? SKSpriteNode {
             player.component(ofType: SpriteComponent.self)?.node = playerNode
             spawnPoint = playerNode.position
             playerNode.physicsBody?.categoryBitMask = PhysicsCategory.player
@@ -77,35 +76,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             player.component(ofType: HealthComponent.self)?.attachHealthBar(
                 to: playerNode
             )
-
         }
 
-        enumerateChildNodes(withName: "enemy*") { node, _ in
-            let enemy = Enemy()
-            if let spriteNode = enemy.component(ofType: SpriteComponent.self)?
-                .node
-            {
-                spriteNode.position = node.position
-                spriteNode.size.width = node.frame.width
-                spriteNode.size.height = node.frame.height
-
-                spriteNode.physicsBody?.categoryBitMask = PhysicsCategory.enemy
-                spriteNode.physicsBody?.collisionBitMask =
-                    PhysicsCategory.floor | PhysicsCategory.player
-                spriteNode.physicsBody?.contactTestBitMask =
-                    PhysicsCategory.player | PhysicsCategory.floor
-
-                self.addChild(spriteNode)
-                enemy.component(ofType: PhysicsComponent.self)?.applyPhysics(
-                    to: spriteNode
-                )
-                enemy.component(ofType: HealthComponent.self)?.attachHealthBar(
-                    to: spriteNode
-                )
-            }
-
-            node.removeFromParent()
-            self.enemies.append(enemy)
+        enumerateChildNodes(withName: "enemy*") { sksNode, _ in
+            guard let newNode = self.makeEnemy(sksNode) else { return }
+            newNode.position = sksNode.position
+            self.addChild(newNode)
+            sksNode.removeFromParent()
         }
 
         addChild(cam)
@@ -157,9 +134,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         floor.physicsBody = SKPhysicsBody(rectangleOf: floor.size)
         floor.physicsBody?.isDynamic = false
         floor.physicsBody?.categoryBitMask = PhysicsCategory.floor
-        floor.physicsBody?.collisionBitMask = PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
-        floor.physicsBody?.contactTestBitMask = PhysicsCategory.player | PhysicsCategory.enemy | PhysicsCategory.grapple
+        floor.physicsBody?.collisionBitMask =
+            PhysicsCategory.player | PhysicsCategory.enemy
+            | PhysicsCategory.grapple
+        floor.physicsBody?.contactTestBitMask =
+            PhysicsCategory.player | PhysicsCategory.enemy
+            | PhysicsCategory.grapple
         return floor
+    }
+
+    func makeEnemy(_ sksNode: SKNode) -> SKNode? {
+        let enemy = Enemy()
+        guard let spriteNode = enemy.component(ofType: SpriteComponent.self)?.node else { return nil }
+
+        spriteNode.size.width = sksNode.frame.width
+        spriteNode.size.height = sksNode.frame.height
+
+        spriteNode.physicsBody?.categoryBitMask = PhysicsCategory.enemy
+        spriteNode.physicsBody?.collisionBitMask =
+            PhysicsCategory.floor | PhysicsCategory.player
+        spriteNode.physicsBody?.contactTestBitMask =
+            PhysicsCategory.player | PhysicsCategory.floor
+
+        enemy.component(ofType: PhysicsComponent.self)?.applyPhysics(to: spriteNode)
+        enemy.component(ofType: HealthComponent.self)?.attachHealthBar(to: spriteNode)
+        
+        enemies.append(enemy)
+        
+        return spriteNode
     }
 
     func playBackgroundMusic() {
@@ -216,7 +218,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let yPos = player.component(ofType: SpriteComponent.self)?.node
                 .position.y
         else { return }
-        
+
         background.position = CGPoint(x: xPos, y: yPos + 100)
 
         cam.position.x = xPos
@@ -364,7 +366,7 @@ enum CollisionSide {
 
 // returns the enum, not the component
 func collisionSide(nodeA: SKNode, nodeB: SKNode) -> CollisionSide {
-    
+
     let dx = nodeB.position.x - nodeA.position.x
     let dy = nodeB.position.y - nodeA.position.y
 
