@@ -48,9 +48,6 @@ class PhysicsComponent: GKComponent {
         
         assignCategories(to: hitBoxNode)
         
-        hitBoxNode.contactTestBitMask = 0xFFFF_FFFF  // report ALL contacts
-        hitBoxNode.collisionBitMask = 0xFFFF_FFFF  // collide with everything
-        
         node.physicsBody = hitBoxNode
     }
 

@@ -75,7 +75,7 @@ class ChaseState : GKState {
         let distance = sqrt(dx * dx + dy * dy)
                 
         // Close enough to attack
-        if distance < 300 {
+        if distance < 400 {
             stateMachine?.enter(AttackState.self)
         }
                 
@@ -137,7 +137,7 @@ class AttackState: GKState {
         let distance = sqrt(dx * dx + dy * dy)
                 
         // far away
-        if distance > 300 {
+        if distance > 400 {
             stateMachine?.enter(ChaseState.self)
         }
         

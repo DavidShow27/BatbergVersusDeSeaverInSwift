@@ -57,17 +57,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         background.zPosition = -1
         addChild(background)
 
-        enumerateChildNodes(withName: "Floor") { sksNode, _ in
-            guard let newNode = self.makeFloor(sksNode) else { return }
-            newNode.position = sksNode.position
-            newNode.zRotation = sksNode.zRotation
-            self.addChild(newNode)
-            sksNode.removeFromParent()
+        enumerateChildNodes(withName: "Collision") { node, _ in
+            guard let sprite = node as? SKSpriteNode else { return }
+            sprite.alpha = 0
+            sprite.physicsBody = SKPhysicsBody(rectangleOf: sprite.size)
+            sprite.physicsBody?.isDynamic = false
+            sprite.physicsBody?.friction = 0.5
+            sprite.physicsBody?.restitution = 0.0
+            sprite.physicsBody?.categoryBitMask = PhysicsCategory.floor
+            sprite.physicsBody?.collisionBitMask =
+                PhysicsCategory.player | PhysicsCategory.enemy
+                | PhysicsCategory.grapple
+            sprite.physicsBody?.contactTestBitMask =
+                PhysicsCategory.player | PhysicsCategory.enemy
+                | PhysicsCategory.grapple
+            sprite.name = "Floor"
         }
 
-        if let playerNode = self.childNode(withName: "player") as? SKSpriteNode {
+        if let playerNode = self.childNode(withName: "player") as? SKSpriteNode
+        {
             player.component(ofType: SpriteComponent.self)?.node = playerNode
-            player.component(ofType: HealthComponent.self)?.attachHealthBar(to: playerNode)
+            player.component(ofType: HealthComponent.self)?.attachHealthBar(
+                to: playerNode
+            )
             spawnPoint = playerNode.position
         }
 
@@ -118,38 +130,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     }
 
-    // Each maker function builds the proper coded node
-    func makeFloor(_ sksNode: SKNode) -> SKNode? {
-        guard let sprite = sksNode as? SKSpriteNode else { return nil }
-        let floor = SKSpriteNode(imageNamed: "concrete center")
-        floor.size = sprite.size
-        floor.centerRect = CGRect(x: 0.25, y: 0.25, width: 0.5, height: 0.5)
-        floor.name = "Floor"
-        
-        floor.physicsBody = SKPhysicsBody(rectangleOf: floor.size)
-        floor.physicsBody?.isDynamic = false
-        floor.physicsBody?.categoryBitMask = PhysicsCategory.floor
-        floor.physicsBody?.collisionBitMask =
-            PhysicsCategory.player | PhysicsCategory.enemy
-            | PhysicsCategory.grapple
-        floor.physicsBody?.contactTestBitMask =
-            PhysicsCategory.player | PhysicsCategory.enemy
-            | PhysicsCategory.grapple
-        return floor
-    }
-
     func makeEnemy(_ sksNode: SKNode) -> SKNode? {
         let enemy = Enemy()
-        guard let spriteNode = enemy.component(ofType: SpriteComponent.self)?.node else { return nil }
+        guard
+            let spriteNode = enemy.component(ofType: SpriteComponent.self)?.node
+        else { return nil }
 
         spriteNode.size.width = sksNode.frame.width
         spriteNode.size.height = sksNode.frame.height
 
-        enemy.component(ofType: PhysicsComponent.self)?.applyPhysics(to: spriteNode)
-        enemy.component(ofType: HealthComponent.self)?.attachHealthBar(to: spriteNode)
-        
+        enemy.component(ofType: PhysicsComponent.self)?.applyPhysics(
+            to: spriteNode
+        )
+        enemy.component(ofType: HealthComponent.self)?.attachHealthBar(
+            to: spriteNode
+        )
+
         enemies.append(enemy)
-        
+
         return spriteNode
     }
 
@@ -256,24 +254,41 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         if names.contains("bullet") && names.contains("Floor") {
 
-            if let bulletNode = player.component(ofType: Bullet.self)?.bull {
+            if let bulletNode = player.component(ofType: BulletComponent.self)?
+                .bull
+            {
                 bulletNode.physicsBody?.velocity = .zero
             }
 
-            player.component(ofType: Bullet.self)?.bull?
+            player.component(ofType: BulletComponent.self)?.bull?
                 .removeFromParent()
         }
 
-        if names.contains("bullet"), let enemy = involvedEnemy, names.contains(enemy.component(ofType: SpriteComponent.self)?.node.name ?? ""){
+        if names.contains("bullet"), let enemy = involvedEnemy,
+            names.contains(
+                enemy.component(ofType: SpriteComponent.self)?.node.name ?? ""
+            )
+        {
             enemy.component(ofType: HealthComponent.self)?.takeDamage(
                 ammount: 1
             )
         }
 
         if names.contains("player") && names.contains("Floor") {
-            player.component(ofType: JumpComponent.self)?.isJumping = false
-            player.component(ofType: GroundPoundComponent.self)?
-                .isGroundPounding = false
+
+            guard
+                let playerNode = player.component(ofType: SpriteComponent.self)?
+                    .node
+            else { return }
+            guard let floorNode = contact.bodyB.node else { return }
+
+            let side = collisionSide(nodeA: playerNode, nodeB: floorNode)
+
+            if side == .bottom {
+                player.component(ofType: JumpComponent.self)?.isJumping = false
+                player.component(ofType: GroundPoundComponent.self)?
+                    .isGroundPounding = false
+            }
         }
 
         if let enemy = involvedEnemy, names.contains("Floor") {

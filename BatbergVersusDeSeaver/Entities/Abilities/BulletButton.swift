@@ -1,7 +1,7 @@
 import Foundation
 import GameplayKit
 
-class ActionButton: SKNode {
+class BulletButton: SKNode {
 
     var player = Player.shared
     
