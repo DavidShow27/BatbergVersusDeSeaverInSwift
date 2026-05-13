@@ -22,7 +22,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     var player = Player.shared
 
-    var enemies: [Enemy] = []
+    var enemies: [DeSeaver] = []
 
     //var grapple: Grapple!
     var grappleSprite: SKSpriteNode!
@@ -33,8 +33,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     var spawnPoint: CGPoint = .zero
 
-    let joyStick = Joystick(size: 100)
-    let actionButton = ActionButton(size: CGSize(width: 175, height: 175))
+    let joyStick = Joystick(size: 175)
+    let actionButton = ActionButton(size: CGSize(width: 325, height: 325))
     let grapple = Grapple(size: 200)
 
     var backgroundMusic: AVAudioPlayer?
@@ -131,7 +131,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     func makeEnemy(_ sksNode: SKNode) -> SKNode? {
-        let enemy = Enemy()
+        let enemy = DeSeaver()
         guard
             let spriteNode = enemy.component(ofType: SpriteComponent.self)?.node
         else { return nil }
@@ -197,24 +197,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             enemy.update(deltaTime: 1 / 60)
         }
 
-        guard
-            let xPos = player.component(ofType: SpriteComponent.self)?.node
-                .position.x
-        else { return }
-        guard
-            let yPos = player.component(ofType: SpriteComponent.self)?.node
-                .position.y
-        else { return }
+        guard let xPos = player.component(ofType: SpriteComponent.self)?.node.position.x else { return }
+        guard let yPos = player.component(ofType: SpriteComponent.self)?.node.position.y else { return }
 
         background.position = CGPoint(x: xPos, y: yPos + 100)
 
         cam.position.x = xPos
         cam.position.y = yPos + 100
 
-        joyStick.position.x = xPos - (size.width / 3)
+        joyStick.position.x = xPos - (size.width / 3.3)
         joyStick.position.y = yPos - (size.height / 10)
 
-        actionButton.position.x = xPos + (size.width / 3)
+        actionButton.position.x = xPos + (size.width / 3.3)
         actionButton.position.y = yPos - (size.height / 10)
 
         grapple.position = CGPoint(x: xPos, y: yPos)

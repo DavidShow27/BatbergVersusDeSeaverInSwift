@@ -51,6 +51,7 @@ struct TitleView: View {
         }
         .fullScreenCover(isPresented: $showGame) {
             GameViewControllerRepresentable()
+                .ignoresSafeArea()
         }
         .onAppear {
             audio.playSound(sound: "!BvD", type: "wav")
