@@ -108,7 +108,7 @@ class Joystick: SKNode {
         
         onCrouchChanged?(crouching)
         
-        velocity = CGVector(dx: knob.position.x * 5, dy: knob.position.y * 5)
+        velocity = CGVector(dx: knob.position.x * 3, dy: knob.position.y * 3)
 
         player.component(ofType: MovementComponent.self)?.velocity = velocity
         

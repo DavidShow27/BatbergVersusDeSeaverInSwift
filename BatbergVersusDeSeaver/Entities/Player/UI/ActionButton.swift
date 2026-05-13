@@ -22,13 +22,13 @@ class ActionButton: SKNode {
         backGround.lineWidth = 2
         label = SKLabelNode(text: "jump")
         label.fontName = "MortalKombat-Regular"
-        label.fontSize = 48
+        label.fontSize = 85
         label.fontColor = .white
+        label.position.y = backGround.position.y - 20
         super.init()
         isUserInteractionEnabled = true
         addChild(backGround)
-        addChild(label)
-        label.position.y = backGround.frame.midY - 10
+        backGround.addChild(label)
     }
 
     required init?(coder: NSCoder) {
