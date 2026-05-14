@@ -38,8 +38,9 @@ class BulletComponent: GKComponent {
         }
 
     }
-    func fire(in scene: SKScene){
+    func fire(){
         guard let bull = bull else { return }
+        guard let scene = entity?.component(ofType: SpriteComponent.self)?.node.parent else { return }
         scene.addChild(bull)
 
         let move = SKAction.move(by: velocity, duration: 1)

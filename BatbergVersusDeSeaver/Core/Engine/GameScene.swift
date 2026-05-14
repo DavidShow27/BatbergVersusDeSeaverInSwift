@@ -23,6 +23,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var player = Player.shared
 
     var enemies: [DeSeaver] = []
+    var goattone = Goattone()
 
     //var grapple: Grapple!
     var grappleSprite: SKSpriteNode!
@@ -81,6 +82,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 to: playerNode
             )
             spawnPoint = playerNode.position
+        }
+        
+        if let bossNode = self.childNode(withName: "boss") as? SKSpriteNode
+        {
+            goattone.component(ofType: SpriteComponent.self)?.node = bossNode
+            goattone.component(ofType: HealthComponent.self)?.attachHealthBar(
+                to: bossNode
+            )
         }
 
         enumerateChildNodes(withName: "enemy*") { sksNode, _ in

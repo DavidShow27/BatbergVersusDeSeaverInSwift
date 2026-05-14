@@ -19,4 +19,12 @@ class Goattone : Enemy {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func update(deltaTime seconds: TimeInterval) {
+        if stateMachine.isEqual(AttackState.self) {
+            Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { time in
+                self.component(ofType: BulletComponent.self)?.fire()
+            }
+        }
+    }
+    
 }
