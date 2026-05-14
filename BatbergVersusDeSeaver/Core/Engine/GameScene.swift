@@ -22,7 +22,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     var player = Player.shared
 
-    var enemies: [Enemy] = []
+    var enemies: [DeSeaver] = []
+    var goattone = Goattone()
 
     //var grapple: Grapple!
     var grappleSprite: SKSpriteNode!
@@ -33,8 +34,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     var spawnPoint: CGPoint = .zero
 
-    let joyStick = Joystick(size: 100)
-    let actionButton = ActionButton(size: CGSize(width: 175, height: 175))
+    let joyStick = Joystick(size: 175)
+    let actionButton = ActionButton(size: CGSize(width: 325, height: 325))
     let grapple = Grapple(size: 200)
 
     var backgroundMusic: AVAudioPlayer?
@@ -82,7 +83,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             )
             spawnPoint = playerNode.position
         }
-
+        
+        if let bossNode = self.childNode(withName: "boss") as? SKSpriteNode {
+            goattone.component(ofType: SpriteComponent.self)?.node = bossNode
+            goattone.component(ofType: PhysicsComponent.self)?.applyPhysics(to: bossNode)
+            goattone.component(ofType: HealthComponent.self)?.attachHealthBar(to: bossNode)
+        }
+        
         enumerateChildNodes(withName: "enemy*") { sksNode, _ in
             guard let newNode = self.makeEnemy(sksNode) else { return }
             newNode.position = sksNode.position
@@ -131,7 +138,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     func makeEnemy(_ sksNode: SKNode) -> SKNode? {
-        let enemy = Enemy()
+        let enemy = DeSeaver()
         guard
             let spriteNode = enemy.component(ofType: SpriteComponent.self)?.node
         else { return nil }
@@ -237,30 +244,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     //before each frame
     override func update(_ currentTime: TimeInterval) {
+        
         player.update(deltaTime: 1 / 60)
-
+        
+        goattone.update(deltaTime: 1 / 60)
+        
         for enemy in enemies {
             enemy.update(deltaTime: 1 / 60)
         }
 
-        guard
-            let xPos = player.component(ofType: SpriteComponent.self)?.node
-                .position.x
-        else { return }
-        guard
-            let yPos = player.component(ofType: SpriteComponent.self)?.node
-                .position.y
-        else { return }
+        guard let xPos = player.component(ofType: SpriteComponent.self)?.node.position.x else { return }
+        guard let yPos = player.component(ofType: SpriteComponent.self)?.node.position.y else { return }
 
         background.position = CGPoint(x: xPos, y: yPos + 100)
 
         cam.position.x = xPos
         cam.position.y = yPos + 100
 
-        joyStick.position.x = xPos - (size.width / 3)
+        joyStick.position.x = xPos - (size.width / 3.3)
         joyStick.position.y = yPos - (size.height / 10)
 
-        actionButton.position.x = xPos + (size.width / 3)
+        actionButton.position.x = xPos + (size.width / 3.3)
         actionButton.position.y = yPos - (size.height / 10)
 
         grapple.position = CGPoint(x: xPos, y: yPos)
@@ -310,14 +314,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 .removeFromParent()
         }
 
-        if names.contains("bullet"), let enemy = involvedEnemy,
-            names.contains(
-                enemy.component(ofType: SpriteComponent.self)?.node.name ?? ""
-            )
-        {
-            enemy.component(ofType: HealthComponent.self)?.takeDamage(
-                ammount: 1
-            )
+        if names.contains("bullet"), let enemy = involvedEnemy {
+            enemy.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
         }
 
         if names.contains("player") && names.contains("Floor") {
@@ -342,17 +340,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             enemy.component(ofType: GroundPoundComponent.self)?
                 .isGroundPounding = false
         }
+        
+        if names.contains("boss") && names.contains("Floor") {
+            goattone.component(ofType: JumpComponent.self)?.isJumping = false
+            goattone.component(ofType: GroundPoundComponent.self)?
+                .isGroundPounding = false
+        }
 
         if let enemy = involvedEnemy, names.contains("player") {
 
-            guard
-                let playerNode = player.component(ofType: SpriteComponent.self)?
-                    .node
-            else { return }
-            guard
-                let enemyNode = enemy.component(ofType: SpriteComponent.self)?
-                    .node
-            else { return }
+            guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
+            guard let enemyNode = enemy.component(ofType: SpriteComponent.self)?.node else { return }
             let side = collisionSide(nodeA: enemyNode, nodeB: playerNode)
 
             enemy.lastCollisionSide = side
@@ -362,6 +360,51 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             case .top:
                 // Player landed on enemy's head
                 enemy.component(ofType: HealthComponent.self)?.takeDamage(
+                    ammount: 1
+                )
+                // Bounce player up
+                playerNode.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 350))
+                player.component(ofType: JumpComponent.self)?.isJumping = false
+
+            case .bottom:
+                // Enemy landed on player
+                player.component(ofType: HealthComponent.self)?.takeDamage(
+                    ammount: 1
+                )
+                let knockbackDir: CGFloat =
+                    playerNode.position.x > enemyNode.position.x ? 1 : -1
+                playerNode.physicsBody?.applyImpulse(
+                    CGVector(dx: 250 * knockbackDir, dy: 150)
+                )
+
+            case .left, .right:
+                // Side collision — player walks into enemy
+                //player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
+                let knockbackDir: CGFloat =
+                    playerNode.position.x > enemyNode.position.x ? 1 : -1
+                playerNode.physicsBody?.applyImpulse(
+                    CGVector(dx: 250 * knockbackDir, dy: 150)
+                )
+
+            case .reset:
+                break
+            }
+
+        }
+        
+        if names.contains("boss") && names.contains("player") {
+
+            guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
+            guard let enemyNode = goattone.component(ofType: SpriteComponent.self)?.node else { return }
+            let side = collisionSide(nodeA: enemyNode, nodeB: playerNode)
+
+            goattone.lastCollisionSide = side
+            print("Collision side: \(side)")
+
+            switch side {
+            case .top:
+                // Player landed on enemy's head
+                goattone.component(ofType: HealthComponent.self)?.takeDamage(
                     ammount: 1
                 )
                 // Bounce player up
