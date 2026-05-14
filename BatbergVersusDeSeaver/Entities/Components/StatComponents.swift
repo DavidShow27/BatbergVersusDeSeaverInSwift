@@ -81,12 +81,6 @@ class HealthComponent: GKComponent {
         super.init()
     }
 
-    init(health: Int) {
-        self.health = health
-        self.maxHealth = health
-        super.init()
-    }
-
     // Health bar nodes
     private var healthBarBackground: SKShapeNode?
     private var healthBarFill: SKShapeNode?

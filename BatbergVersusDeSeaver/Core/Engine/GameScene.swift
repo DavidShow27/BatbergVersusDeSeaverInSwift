@@ -174,19 +174,65 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     @objc func handlePlayerDied() {
-        guard
-            let playerNode = player.component(ofType: SpriteComponent.self)?
-                .node
-        else { return }
+        guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
 
+        // Freeze the player completely
         playerNode.physicsBody?.velocity = .zero
-        playerNode.position = spawnPoint
+        playerNode.physicsBody?.isDynamic = false
+        playerNode.isHidden = true
 
-        let health = player.component(ofType: HealthComponent.self)
-        health?.health = health?.maxHealth ?? 3
-        health?.isDead = false
-        health?.healingTimer = 0  // resets the healing timer
-        health?.updateHealthBar()
+        // Overlay needs to be sized to the camera/screen, not the scene
+        let screenSize = CGSize(width: self.size.width * 2, height: self.size.height * 2)
+        let overlay = SKShapeNode(rectOf: screenSize)
+        overlay.fillColor = UIColor.black.withAlphaComponent(0.7)
+        overlay.strokeColor = .clear
+        overlay.position = CGPoint(x: cam.position.x, y: cam.position.y)
+        overlay.zPosition = 100
+        overlay.name = "deathOverlay"
+        addChild(overlay)
+
+        let deathLabel = SKLabelNode(text: "YOU DIED")
+        deathLabel.fontName = "MortalKombat-Regular"
+        deathLabel.fontSize = 72
+        deathLabel.fontColor = .red
+        deathLabel.position = CGPoint(x: 0, y: 50)
+        deathLabel.zPosition = 101
+        overlay.addChild(deathLabel)
+
+        let respawnLabel = SKLabelNode(text: "tap to respawn")
+        respawnLabel.fontName = "MortalKombat-Regular"
+        respawnLabel.fontSize = 36
+        respawnLabel.fontColor = .white
+        respawnLabel.position = CGPoint(x: 0, y: -50)
+        respawnLabel.zPosition = 101
+        overlay.addChild(respawnLabel)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
+        let tappedNodes = nodes(at: location)
+
+        if tappedNodes.contains(where: { $0.name == "deathOverlay" || $0.parent?.name == "deathOverlay" }) {
+            // Remove the overlay
+            childNode(withName: "deathOverlay")?.removeFromParent()
+
+            // Respawn
+            guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
+            playerNode.physicsBody?.velocity = .zero
+            playerNode.position = spawnPoint
+
+            let health = player.component(ofType: HealthComponent.self)
+            health?.health = health?.maxHealth ?? 5
+            health?.isDead = false
+            health?.healingTimer = 0
+            health?.updateHealthBar()
+            
+            playerNode.physicsBody?.isDynamic = true
+            playerNode.isHidden = false
+            playerNode.physicsBody?.velocity = .zero
+            playerNode.position = spawnPoint
+        }
     }
 
     //before each frame
