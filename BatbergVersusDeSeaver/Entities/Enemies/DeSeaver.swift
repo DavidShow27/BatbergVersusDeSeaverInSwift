@@ -12,6 +12,8 @@ class DeSeaver : Enemy {
     
     override init() {
         super.init()
+        addComponent(SpriteComponent(imageName: "NewDeSeaver"))
+        addComponent(HealthComponent(health: 2))
     }
     
     @MainActor required init?(coder aDecoder: NSCoder) {

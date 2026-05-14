@@ -12,7 +12,9 @@ class Goattone : Enemy {
     
     override init() {
         super.init()
+        addComponent(SpriteComponent(imageName: "goattone"))
         addComponent(BulletComponent())
+        addComponent(HealthComponent(health: 10))
     }
     
     @MainActor required init?(coder aDecoder: NSCoder) {

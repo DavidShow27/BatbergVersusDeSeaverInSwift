@@ -23,6 +23,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var player = Player.shared
 
     var enemies: [DeSeaver] = []
+    var goattone = Goattone()
 
     //var grapple: Grapple!
     var grappleSprite: SKSpriteNode!
@@ -82,7 +83,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             )
             spawnPoint = playerNode.position
         }
-
+        
+        if let bossNode = self.childNode(withName: "boss") as? SKSpriteNode {
+            goattone.component(ofType: SpriteComponent.self)?.node = bossNode
+            goattone.component(ofType: PhysicsComponent.self)?.applyPhysics(to: bossNode)
+            goattone.component(ofType: HealthComponent.self)?.attachHealthBar(to: bossNode)
+        }
+        
         enumerateChildNodes(withName: "enemy*") { sksNode, _ in
             guard let newNode = self.makeEnemy(sksNode) else { return }
             newNode.position = sksNode.position
@@ -174,25 +181,74 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     @objc func handlePlayerDied() {
-        guard
-            let playerNode = player.component(ofType: SpriteComponent.self)?
-                .node
-        else { return }
+        guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
 
+        // Freeze the player completely
         playerNode.physicsBody?.velocity = .zero
-        playerNode.position = spawnPoint
+        playerNode.physicsBody?.isDynamic = false
+        playerNode.isHidden = true
 
-        let health = player.component(ofType: HealthComponent.self)
-        health?.health = health?.maxHealth ?? 3
-        health?.isDead = false
-        health?.healingTimer = 0  // resets the healing timer
-        health?.updateHealthBar()
+        // Overlay needs to be sized to the camera/screen, not the scene
+        let screenSize = CGSize(width: self.size.width * 2, height: self.size.height * 2)
+        let overlay = SKShapeNode(rectOf: screenSize)
+        overlay.fillColor = UIColor.black.withAlphaComponent(0.7)
+        overlay.strokeColor = .clear
+        overlay.position = CGPoint(x: cam.position.x, y: cam.position.y)
+        overlay.zPosition = 100
+        overlay.name = "deathOverlay"
+        addChild(overlay)
+
+        let deathLabel = SKLabelNode(text: "YOU DIED")
+        deathLabel.fontName = "MortalKombat-Regular"
+        deathLabel.fontSize = 72
+        deathLabel.fontColor = .red
+        deathLabel.position = CGPoint(x: 0, y: 50)
+        deathLabel.zPosition = 101
+        overlay.addChild(deathLabel)
+
+        let respawnLabel = SKLabelNode(text: "tap to respawn")
+        respawnLabel.fontName = "MortalKombat-Regular"
+        respawnLabel.fontSize = 36
+        respawnLabel.fontColor = .white
+        respawnLabel.position = CGPoint(x: 0, y: -50)
+        respawnLabel.zPosition = 101
+        overlay.addChild(respawnLabel)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
+        let tappedNodes = nodes(at: location)
+
+        if tappedNodes.contains(where: { $0.name == "deathOverlay" || $0.parent?.name == "deathOverlay" }) {
+            // Remove the overlay
+            childNode(withName: "deathOverlay")?.removeFromParent()
+
+            // Respawn
+            guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
+            playerNode.physicsBody?.velocity = .zero
+            playerNode.position = spawnPoint
+
+            let health = player.component(ofType: HealthComponent.self)
+            health?.health = health?.maxHealth ?? 5
+            health?.isDead = false
+            health?.healingTimer = 0
+            health?.updateHealthBar()
+            
+            playerNode.physicsBody?.isDynamic = true
+            playerNode.isHidden = false
+            playerNode.physicsBody?.velocity = .zero
+            playerNode.position = spawnPoint
+        }
     }
 
     //before each frame
     override func update(_ currentTime: TimeInterval) {
+        
         player.update(deltaTime: 1 / 60)
-
+        
+        goattone.update(deltaTime: 1 / 60)
+        
         for enemy in enemies {
             enemy.update(deltaTime: 1 / 60)
         }
@@ -258,14 +314,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 .removeFromParent()
         }
 
-        if names.contains("bullet"), let enemy = involvedEnemy,
-            names.contains(
-                enemy.component(ofType: SpriteComponent.self)?.node.name ?? ""
-            )
-        {
-            enemy.component(ofType: HealthComponent.self)?.takeDamage(
-                ammount: 1
-            )
+        if names.contains("bullet"), let enemy = involvedEnemy {
+            enemy.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
         }
 
         if names.contains("player") && names.contains("Floor") {
@@ -290,17 +340,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             enemy.component(ofType: GroundPoundComponent.self)?
                 .isGroundPounding = false
         }
+        
+        if names.contains("boss") && names.contains("Floor") {
+            goattone.component(ofType: JumpComponent.self)?.isJumping = false
+            goattone.component(ofType: GroundPoundComponent.self)?
+                .isGroundPounding = false
+        }
 
         if let enemy = involvedEnemy, names.contains("player") {
 
-            guard
-                let playerNode = player.component(ofType: SpriteComponent.self)?
-                    .node
-            else { return }
-            guard
-                let enemyNode = enemy.component(ofType: SpriteComponent.self)?
-                    .node
-            else { return }
+            guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
+            guard let enemyNode = enemy.component(ofType: SpriteComponent.self)?.node else { return }
             let side = collisionSide(nodeA: enemyNode, nodeB: playerNode)
 
             enemy.lastCollisionSide = side
@@ -310,6 +360,51 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             case .top:
                 // Player landed on enemy's head
                 enemy.component(ofType: HealthComponent.self)?.takeDamage(
+                    ammount: 1
+                )
+                // Bounce player up
+                playerNode.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 350))
+                player.component(ofType: JumpComponent.self)?.isJumping = false
+
+            case .bottom:
+                // Enemy landed on player
+                player.component(ofType: HealthComponent.self)?.takeDamage(
+                    ammount: 1
+                )
+                let knockbackDir: CGFloat =
+                    playerNode.position.x > enemyNode.position.x ? 1 : -1
+                playerNode.physicsBody?.applyImpulse(
+                    CGVector(dx: 250 * knockbackDir, dy: 150)
+                )
+
+            case .left, .right:
+                // Side collision — player walks into enemy
+                //player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
+                let knockbackDir: CGFloat =
+                    playerNode.position.x > enemyNode.position.x ? 1 : -1
+                playerNode.physicsBody?.applyImpulse(
+                    CGVector(dx: 250 * knockbackDir, dy: 150)
+                )
+
+            case .reset:
+                break
+            }
+
+        }
+        
+        if names.contains("boss") && names.contains("player") {
+
+            guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
+            guard let enemyNode = goattone.component(ofType: SpriteComponent.self)?.node else { return }
+            let side = collisionSide(nodeA: enemyNode, nodeB: playerNode)
+
+            goattone.lastCollisionSide = side
+            print("Collision side: \(side)")
+
+            switch side {
+            case .top:
+                // Player landed on enemy's head
+                goattone.component(ofType: HealthComponent.self)?.takeDamage(
                     ammount: 1
                 )
                 // Bounce player up
