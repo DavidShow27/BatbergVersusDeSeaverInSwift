@@ -43,26 +43,25 @@ class AbilityCoolDown : SKNode {
     }
     
     static func startProgressBar() {
-        coolDownBarFill.xScale = 1
         
-        let shrink = SKAction.scaleX(to: 0, duration: time)
-        shrink.timingMode = .linear
+        coolDownBarFill.alpha = 1
+        coolDownBarFill.xScale = 0
         
-        coolDownBarFill.run(shrink)
+        let grow = SKAction.scaleX(to: 1, duration: time)
+        grow.timingMode = .easeOut
+        
+        let flash1 = SKAction.fadeAlpha(to: 0, duration: 0.1)
+        flash1.timingMode = .linear
+        let flash2 = SKAction.fadeAlpha(to: 1, duration: 0.1)
+        flash2.timingMode = .linear
+        coolDownBarFill.run(SKAction.sequence([grow,flash1,flash2]))
+
     }
     
     static func startCoolDown() {
-        print("cool down started")
         Grapple.canGrapple = false
         startProgressBar()
-        timer = Timer.scheduledTimer(withTimeInterval: time, repeats: false, block: { _ in
-            print("Cool Down complete")
-            Grapple.canGrapple = true
-            coolDownBarFill.alpha = 0
-            coolDownBarFill.xScale = 1
-            let appear = SKAction.fadeAlpha(to: 1.0, duration: 0.5)
-            appear.timingMode = .linear
-            coolDownBarFill.run(appear)
+        timer = Timer.scheduledTimer(withTimeInterval: time, repeats: false, block: { _ in            Grapple.canGrapple = true
         })
     }
     

@@ -86,12 +86,12 @@ class Grapple: SKNode {
         if !Grapple.canGrapple { return }
 
         trajectory.removeFromParent()
-        
-        AbilityCoolDown.startCoolDown()
 
         player.component(ofType: GrappleComponent.self)?.launch(
             vector: CGVector(dx: dx, dy: dy)
         )
+        
+        AbilityCoolDown.startCoolDown()
         
     }
 
