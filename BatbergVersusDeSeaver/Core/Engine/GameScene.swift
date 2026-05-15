@@ -493,7 +493,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             player.component(ofType: HealthComponent.self)?.takeDamage(
                 ammount: 1
             )
-            playerNode.physicsBody?.applyImpulse(CGVector(dx: 0.0, dy: 100.0))
+            playerNode.physicsBody?.applyImpulse(CGVector(dx: 0.0, dy: 250.0))
         }
 
         if names.contains("tramp0") && names.contains("player") {
@@ -504,6 +504,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             else { return }
 
             playerNode.physicsBody?.applyImpulse(CGVector(dx: 0.0, dy: 1500.0))
+        }
+        
+        if names.contains("fanAOE45") && names.contains("player") {
+            guard
+                let playerNode = player.component(ofType: SpriteComponent.self)?
+                    .node
+
+            else { return }
+
+            playerNode.physicsBody?.applyImpulse(CGVector(dx: 10.0, dy: 10.0))
         }
     }
     
