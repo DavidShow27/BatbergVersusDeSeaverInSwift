@@ -37,6 +37,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let joyStick = Joystick(size: 175)
     let actionButton = ActionButton(size: CGSize(width: 325, height: 325))
     let grapple = Grapple(size: 200)
+    let abilityMeter = AbilityCoolDown(size: CGSize(width: 600, height: 20))
 
     var backgroundMusic: AVAudioPlayer?
 
@@ -83,13 +84,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             )
             spawnPoint = playerNode.position
         }
-        
+
         if let bossNode = self.childNode(withName: "boss") as? SKSpriteNode {
             goattone.component(ofType: SpriteComponent.self)?.node = bossNode
-            goattone.component(ofType: PhysicsComponent.self)?.applyPhysics(to: bossNode)
-            goattone.component(ofType: HealthComponent.self)?.attachHealthBar(to: bossNode)
+            goattone.component(ofType: PhysicsComponent.self)?.applyPhysics(
+                to: bossNode
+            )
+            goattone.component(ofType: HealthComponent.self)?.attachHealthBar(
+                to: bossNode
+            )
         }
-        
+
         enumerateChildNodes(withName: "enemy*") { sksNode, _ in
             guard let newNode = self.makeEnemy(sksNode) else { return }
             newNode.position = sksNode.position
@@ -113,10 +118,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         joyStick.zPosition = 1
         actionButton.zPosition = 1
         grapple.zPosition = 0
+        abilityMeter.zPosition = 1
 
         addChild(joyStick)
         addChild(actionButton)
         addChild(grapple)
+        addChild(abilityMeter)
 
         joyStick.onCrouchChanged = { isCrouching in
             if isCrouching {
@@ -181,15 +188,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     @objc func handlePlayerDied() {
-        guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
 
-        // Freeze the player completely
+        // Stop user interaction
+        joyStick.canMove = false
+        joyStick.knob.position = joyStick.edge.position
+        player.component(ofType: MovementComponent.self)?.velocity = .zero
+
+        // Stop external nodes from interacting with player
+        guard
+            let playerNode = player.component(ofType: SpriteComponent.self)?
+                .node
+        else { return }
         playerNode.physicsBody?.velocity = .zero
         playerNode.physicsBody?.isDynamic = false
         playerNode.isHidden = true
 
         // Overlay needs to be sized to the camera/screen, not the scene
-        let screenSize = CGSize(width: self.size.width * 2, height: self.size.height * 2)
+        let screenSize = CGSize(
+            width: self.size.width * 2,
+            height: self.size.height * 2
+        )
         let overlay = SKShapeNode(rectOf: screenSize)
         overlay.fillColor = UIColor.black.withAlphaComponent(0.7)
         overlay.strokeColor = .clear
@@ -213,19 +231,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         respawnLabel.position = CGPoint(x: 0, y: -50)
         respawnLabel.zPosition = 101
         overlay.addChild(respawnLabel)
+
     }
-    
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
         let tappedNodes = nodes(at: location)
 
-        if tappedNodes.contains(where: { $0.name == "deathOverlay" || $0.parent?.name == "deathOverlay" }) {
+        if tappedNodes.contains(where: {
+            $0.name == "deathOverlay" || $0.parent?.name == "deathOverlay"
+        }) {
             // Remove the overlay
             childNode(withName: "deathOverlay")?.removeFromParent()
 
             // Respawn
-            guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
+            guard
+                let playerNode = player.component(ofType: SpriteComponent.self)?
+                    .node
+            else { return }
             playerNode.physicsBody?.velocity = .zero
             playerNode.position = spawnPoint
 
@@ -234,27 +258,35 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             health?.isDead = false
             health?.healingTimer = 0
             health?.updateHealthBar()
-            
+
             playerNode.physicsBody?.isDynamic = true
             playerNode.isHidden = false
             playerNode.physicsBody?.velocity = .zero
             playerNode.position = spawnPoint
+
+            joyStick.canMove = true
         }
     }
 
     //before each frame
     override func update(_ currentTime: TimeInterval) {
-        
+
         player.update(deltaTime: 1 / 60)
-        
+
         goattone.update(deltaTime: 1 / 60)
-        
+
         for enemy in enemies {
             enemy.update(deltaTime: 1 / 60)
         }
 
-        guard let xPos = player.component(ofType: SpriteComponent.self)?.node.position.x else { return }
-        guard let yPos = player.component(ofType: SpriteComponent.self)?.node.position.y else { return }
+        guard
+            let xPos = player.component(ofType: SpriteComponent.self)?.node
+                .position.x
+        else { return }
+        guard
+            let yPos = player.component(ofType: SpriteComponent.self)?.node
+                .position.y
+        else { return }
 
         background.position = CGPoint(x: xPos, y: yPos + 100)
 
@@ -268,6 +300,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         actionButton.position.y = yPos - (size.height / 10)
 
         grapple.position = CGPoint(x: xPos, y: yPos)
+
+        abilityMeter.position.x = xPos
+        abilityMeter.position.y = yPos - 240
 
     }
 
@@ -315,7 +350,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
 
         if names.contains("bullet"), let enemy = involvedEnemy {
-            enemy.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
+            enemy.component(ofType: HealthComponent.self)?.takeDamage(
+                ammount: 1
+            )
         }
 
         if names.contains("player") && names.contains("Floor") {
@@ -340,7 +377,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             enemy.component(ofType: GroundPoundComponent.self)?
                 .isGroundPounding = false
         }
-        
+
         if names.contains("boss") && names.contains("Floor") {
             goattone.component(ofType: JumpComponent.self)?.isJumping = false
             goattone.component(ofType: GroundPoundComponent.self)?
@@ -349,8 +386,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         if let enemy = involvedEnemy, names.contains("player") {
 
-            guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
-            guard let enemyNode = enemy.component(ofType: SpriteComponent.self)?.node else { return }
+            guard
+                let playerNode = player.component(ofType: SpriteComponent.self)?
+                    .node
+            else { return }
+            guard
+                let enemyNode = enemy.component(ofType: SpriteComponent.self)?
+                    .node
+            else { return }
             let side = collisionSide(nodeA: enemyNode, nodeB: playerNode)
 
             enemy.lastCollisionSide = side
@@ -391,11 +434,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
 
         }
-        
+
         if names.contains("boss") && names.contains("player") {
 
-            guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
-            guard let enemyNode = goattone.component(ofType: SpriteComponent.self)?.node else { return }
+            guard
+                let playerNode = player.component(ofType: SpriteComponent.self)?
+                    .node
+            else { return }
+            guard
+                let enemyNode = goattone.component(
+                    ofType: SpriteComponent.self
+                )?.node
+            else { return }
             let side = collisionSide(nodeA: enemyNode, nodeB: playerNode)
 
             goattone.lastCollisionSide = side
