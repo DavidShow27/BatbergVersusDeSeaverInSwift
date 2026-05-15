@@ -121,6 +121,7 @@ class CrouchComponent: GKComponent {
         )
         body?.applyPhysics(to: node)
         movement?.speedRecuction = 1
+        node.position.y += (node.size.height / 4)
 
         isCrouching = false
     }
