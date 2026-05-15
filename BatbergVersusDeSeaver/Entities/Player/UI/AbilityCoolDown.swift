@@ -12,6 +12,7 @@ class AbilityCoolDown : SKNode {
     
     static var timer: Timer?
     static var onGoing = false
+    static var time: TimeInterval = 1.5
     
     // Cool down bar nodes
     private static var coolDownBackground: SKShapeNode = SKShapeNode()
@@ -44,7 +45,7 @@ class AbilityCoolDown : SKNode {
     static func startProgressBar() {
         coolDownBarFill.xScale = 1
         
-        let shrink = SKAction.scaleX(to: 0, duration: 3.0)
+        let shrink = SKAction.scaleX(to: 0, duration: time)
         shrink.timingMode = .linear
         
         coolDownBarFill.run(shrink)
@@ -54,7 +55,7 @@ class AbilityCoolDown : SKNode {
         print("cool down started")
         Grapple.canGrapple = false
         startProgressBar()
-        timer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false, block: { _ in
+        timer = Timer.scheduledTimer(withTimeInterval: time, repeats: false, block: { _ in
             print("Cool Down complete")
             Grapple.canGrapple = true
             coolDownBarFill.alpha = 0

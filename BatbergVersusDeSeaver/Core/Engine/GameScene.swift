@@ -188,7 +188,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     @objc func handlePlayerDied() {
-
+        
         // Stop user interaction
         joyStick.canMove = false
         joyStick.knob.position = joyStick.edge.position
@@ -357,10 +357,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         if names.contains("player") && names.contains("Floor") {
 
-            guard
-                let playerNode = player.component(ofType: SpriteComponent.self)?
-                    .node
-            else { return }
+            guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
             guard let floorNode = contact.bodyB.node else { return }
 
             let side = collisionSide(nodeA: playerNode, nodeB: floorNode)
@@ -507,6 +504,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             else { return }
 
             playerNode.physicsBody?.applyImpulse(CGVector(dx: 0.0, dy: 1500.0))
+        }
+    }
+    
+    func didEnd(_ contact: SKPhysicsContact) {
+        let names = [contact.bodyA.node?.name, contact.bodyB.node?.name]
+        
+        if names.contains("player") && names.contains("Floor") {
+            player.component(ofType: JumpComponent.self)?.isJumping = true
         }
     }
 
