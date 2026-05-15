@@ -22,6 +22,8 @@ class Joystick: SKNode {
     
     // ONLY for the actionButton
     var onCrouchChanged: ((Bool) -> Void)?
+    
+    var canMove = true
 
     init(size: CGFloat) {
 
@@ -68,6 +70,8 @@ class Joystick: SKNode {
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        guard canMove else { return }
 
         guard let touch = touches.first else { return }
         let location = touch.location(in: edge)
@@ -109,7 +113,7 @@ class Joystick: SKNode {
         onCrouchChanged?(crouching)
         
         velocity = CGVector(dx: knob.position.x * 3, dy: knob.position.y * 3)
-
+        
         player.component(ofType: MovementComponent.self)?.velocity = velocity
         
         // Change Sprite direction depending on velocity

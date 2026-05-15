@@ -17,6 +17,8 @@ class Grapple: SKNode {
 
     private var playerRadius: SKShapeNode
     private var trajectory: SKShapeNode
+    
+    static var canGrapple = true
 
     var touchPosition = CGPoint(x: 0, y: 0)
 
@@ -42,6 +44,8 @@ class Grapple: SKNode {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        if !Grapple.canGrapple { return }
 
         touchPosition =
             touches.first?.location(in: playerRadius) ?? CGPoint(x: 0, y: 0)
@@ -57,6 +61,8 @@ class Grapple: SKNode {
     private var dy: CGFloat = .zero
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        if !Grapple.canGrapple { return }
 
         guard let touch = touches.first else { return }
         let currentLoc = touch.location(in: playerRadius)
@@ -76,12 +82,17 @@ class Grapple: SKNode {
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        if !Grapple.canGrapple { return }
 
         trajectory.removeFromParent()
+        
+        AbilityCoolDown.startCoolDown()
 
         player.component(ofType: GrappleComponent.self)?.launch(
             vector: CGVector(dx: dx, dy: dy)
         )
+        
     }
 
 }
