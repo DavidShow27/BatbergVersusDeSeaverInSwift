@@ -17,7 +17,7 @@ class Grapple: SKNode {
 
     private var playerRadius: SKShapeNode
     private var trajectory: SKShapeNode
-    
+
     static var canGrapple = true
 
     var touchPosition = CGPoint(x: 0, y: 0)
@@ -29,7 +29,7 @@ class Grapple: SKNode {
 
         playerRadius = SKShapeNode(circleOfRadius: innerRadius)
         playerRadius.strokeColor = .clear
-        
+
         trajectory = SKShapeNode()
 
         super.init()
@@ -44,7 +44,7 @@ class Grapple: SKNode {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
+
         if !Grapple.canGrapple { return }
 
         touchPosition =
@@ -61,7 +61,7 @@ class Grapple: SKNode {
     private var dy: CGFloat = .zero
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
+
         if !Grapple.canGrapple { return }
 
         guard let touch = touches.first else { return }
@@ -82,7 +82,7 @@ class Grapple: SKNode {
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
+
         if !Grapple.canGrapple { return }
 
         trajectory.removeFromParent()
@@ -90,9 +90,8 @@ class Grapple: SKNode {
         player.component(ofType: GrappleComponent.self)?.launch(
             vector: CGVector(dx: dx, dy: dy)
         )
-        
+
         AbilityCoolDown.startCoolDown()
-        
     }
 
 }
@@ -113,6 +112,7 @@ class GrappleComponent: GKComponent {
     var grappleAccel: CGVector = .zero
     var launchVector: CGVector = .zero
     var canLaunch: Bool = false
+    var rope: SKShapeNode?
 
     override func didAddToEntity() {
 
@@ -124,18 +124,22 @@ class GrappleComponent: GKComponent {
             grap?.setScale(0.1)
             grap?.zPosition = 0
 
-            grap?.physicsBody = SKPhysicsBody(circleOfRadius: grap!.size.width / 2)
-            
+            grap?.physicsBody = SKPhysicsBody(
+                circleOfRadius: grap!.size.width / 2
+            )
+
             grap?.physicsBody?.affectedByGravity = false
             grap?.physicsBody?.isDynamic = true
-            
+
             grap?.physicsBody?.categoryBitMask = PhysicsCategory.grapple
             grap?.physicsBody?.contactTestBitMask =
-            PhysicsCategory.floor | PhysicsCategory.enemy | PhysicsCategory.player
+                PhysicsCategory.floor | PhysicsCategory.enemy
+                | PhysicsCategory.player
             grap?.physicsBody?.collisionBitMask =
-            PhysicsCategory.floor | PhysicsCategory.enemy | PhysicsCategory.player
+                PhysicsCategory.floor | PhysicsCategory.enemy
+                | PhysicsCategory.player
             grap?.physicsBody?.allowsRotation = false
-            
+
             grap?.name = "grapple"
         }
 
@@ -148,36 +152,53 @@ class GrappleComponent: GKComponent {
         canLaunch = true
 
         guard let playerNode = sprite?.node else { return }
-        guard let scene = playerNode.parent else { return } // gameScene-ish
-        
+        guard let scene = playerNode.parent else { return }  // gameScene-ish
+
         let length = sqrt(vector.dx * vector.dx + vector.dy * vector.dy)
         let normalX = vector.dx / length
         let normalY = vector.dy / length
-        let offsetX = normalX * (playerNode.size.width / 2 + (grap?.size.width ?? 0))
-        let offsetY = normalY * (playerNode.size.height / 2 + (grap?.size.height ?? 0))
+        let offsetX =
+            normalX * (playerNode.size.width / 2 + (grap?.size.width ?? 0))
+        let offsetY =
+            normalY * (playerNode.size.height / 2 + (grap?.size.height ?? 0))
 
         grap?.removeFromParent()
+        rope?.removeFromParent()
 
         grap = SKSpriteNode(imageNamed: "hook")
-        grap?.position = CGPoint(x: playerNode.position.x + offsetX, y: playerNode.position.y + offsetY)
-        grap?.zRotation = atan2(-vector.dx,vector.dy)
+        grap?.position = CGPoint(
+            x: playerNode.position.x + offsetX,
+            y: playerNode.position.y + offsetY
+        )
+        grap?.zRotation = atan2(-vector.dx, vector.dy)
         grap?.setScale(0.1)
         grap?.name = "grapple"
 
+        rope = SKShapeNode(rect: CGRect(), cornerRadius: 25)
+        rope?.position = grap?.position ?? .zero
+        rope?.fillColor = .white
+
         let body = SKPhysicsBody(circleOfRadius: (grap?.size.width ?? 0) / 2)
-        
+
         body.affectedByGravity = false
         body.isDynamic = true
-        
+
         body.categoryBitMask = PhysicsCategory.grapple
-        body.collisionBitMask = PhysicsCategory.floor | PhysicsCategory.enemy | PhysicsCategory.player
-        body.contactTestBitMask = PhysicsCategory.floor | PhysicsCategory.enemy | PhysicsCategory.player
-        
+        body.collisionBitMask =
+            PhysicsCategory.floor | PhysicsCategory.enemy
+            | PhysicsCategory.player
+        body.contactTestBitMask =
+            PhysicsCategory.floor | PhysicsCategory.enemy
+            | PhysicsCategory.player
+
         grap?.physicsBody = body
-        
+
         scene.addChild(grap!)  // add to gameScene
-        
+        scene.addChild(rope!)
+
         launchVector = vector
+        
+        AudioManager.shared.playSFX(named: "GrappleShot")
 
     }
 
@@ -198,10 +219,24 @@ class GrappleComponent: GKComponent {
         )
 
         grappleAccel = CGVector(
-            dx: grappleAccel.dx + maxAccel.dx / 150,
-            dy: grappleAccel.dy + maxAccel.dy / 150
+            dx: grappleAccel.dx + maxAccel.dx / 175,
+            dy: grappleAccel.dy + maxAccel.dy / 175
         )
-        
+
+        guard let playerPos = sprite?.node.position else { return }
+        guard let grapPos = grap?.position else { return }
+
+        let dx = grapPos.x - playerPos.x
+        let dy = grapPos.y - playerPos.y
+        let distance = sqrt(dx * dx + dy * dy)
+
+        rope?.position = playerPos
+
+        let path = CGRect(x: -5, y: 0, width: 2, height: distance)
+        rope?.path = CGPath(rect: path, transform: nil)
+        rope?.zRotation = atan2(dy, dx) - (.pi / 2)
+
+
         if canLaunchEntity {
             if currentSpeed < maxVelocity {
                 sprite?.node.physicsBody?.applyForce(grappleAccel)
@@ -211,12 +246,15 @@ class GrappleComponent: GKComponent {
         }
 
     }
-    
+
     func removeGrapple() {
         grappleAccel = .zero
         canLaunch = false
         canLaunchEntity = false
         grap?.removeFromParent()
+        rope?.removeFromParent()
+        AudioManager.shared.stopAllSFX()
+        AudioManager.shared.playSFX(named: "GrappleRelease")
     }
-    
+
 }

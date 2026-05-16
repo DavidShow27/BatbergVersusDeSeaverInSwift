@@ -5,13 +5,11 @@
 //  Created by DIEGO CHAVEZ on 4/21/26.
 //
 
-internal import AVFAudio
 import SpriteKit
 import SwiftUI
 
 struct TitleView: View {
     @State var showGame = false
-    @State var audio = AudioManegement()
     var body: some View {
         NavigationView {
             ZStack {
@@ -23,7 +21,7 @@ struct TitleView: View {
 
                     Button {
                         showGame = true
-                        audio.audioPlayer?.stop()
+                        AudioManager.shared.stopMusic()
                     } label: {
                         ZStack {
                             Rectangle()
@@ -35,7 +33,7 @@ struct TitleView: View {
                                 .foregroundColor(.white)
                         }
                     }
-                    NavigationLink(destination: SettingsView( audio: $audio)) {
+                    NavigationLink(destination: SettingsView()) {
                         ZStack {
                             Rectangle()
                                 .frame(width: 200, height: 50)
@@ -54,17 +52,9 @@ struct TitleView: View {
                 .ignoresSafeArea()
         }
         .onAppear {
-            audio.playSound(sound: "!BvD", type: "wav")
+            AudioManager.shared.playMusic(named: "!BvD")
         }
 
-    }
-    init() {
-        for familyName in UIFont.familyNames {
-            print(familyName)
-            for fontName in UIFont.fontNames(forFamilyName: familyName) {
-                print("--\(fontName)")
-            }
-        }
     }
 }
 
