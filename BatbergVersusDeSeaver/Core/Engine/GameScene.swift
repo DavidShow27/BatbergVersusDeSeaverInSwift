@@ -13,6 +13,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     var wallImage = ""
     var floorImage = ""
+    
+    var onExit: (() -> Void)?
 
     var background = SKSpriteNode()
 
@@ -36,8 +38,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     let joyStick = Joystick(size: 175)
     let actionButton = ActionButton(size: CGSize(width: 325, height: 325))
+    let bulletButton = BulletButton(size: CGSize(width: 325, height: 325))
     let grapple = Grapple(size: 200)
     let abilityMeter = AbilityCoolDown(size: CGSize(width: 600, height: 20))
+    let pause = PauseButton(size: CGSize(width: 200, height: 200))
+    
 
     //let topEdge = cam.position.y + (self.size.height / 2)
     /*
@@ -121,13 +126,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         joyStick.zPosition = 1
         actionButton.zPosition = 1
+        bulletButton.zPosition = 1
+        pause.zPosition = 10000
         grapple.zPosition = 0
         abilityMeter.zPosition = 1
+        
+        //var pauseMenu = pause.pauseMenu!
 
         addChild(joyStick)
         addChild(actionButton)
+        addChild(bulletButton)
         addChild(grapple)
         addChild(abilityMeter)
+        addChild(pause)
+        //addChild(pauseMenu)
 
         joyStick.onCrouchChanged = { isCrouching in
             if isCrouching {
@@ -253,6 +265,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 let playerNode = player.component(ofType: SpriteComponent.self)?
                     .node
             else { return }
+            if let scene = GameScene(fileNamed: "GameScene") {
+                    // Match your original scale mode
+                    scene.scaleMode = .aspectFill
+                    
+                    // Optional: add a neat transition
+                    let transition = SKTransition.doorsOpenHorizontal(withDuration: 0.5)
+                    self.view?.presentScene(scene, transition: transition)
+                }
             playerNode.physicsBody?.velocity = .zero
             playerNode.position = spawnPoint
 
@@ -268,7 +288,47 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             playerNode.position = spawnPoint
 
             joyStick.canMove = true
+            
         }
+        // PAUSE BUTTON
+            if tappedNodes.contains(where: {
+                $0.name == "pause" || $0.parent?.name == "pause"
+            }) {
+
+                if physicsWorld.speed == 1 {
+
+                    physicsWorld.speed = 0
+
+                    AudioManager.shared.pauseAll()
+
+                    pause.showPauseMenu()
+
+                } else {
+
+                    physicsWorld.speed = 1
+
+                    AudioManager.shared.resumeAll()
+
+                    pause.hidePauseMenu()
+                }
+            }
+
+            // RESET BUTTON
+            if tappedNodes.contains(where: {
+                $0.name == "resetButton" ||
+                $0.parent?.name == "resetButton"
+            }) {
+
+                if let gameScene = GameScene(fileNamed: "GameScene") {
+
+                    gameScene.scaleMode = .aspectFill
+
+                    view?.presentScene(
+                        gameScene,
+                        transition: SKTransition.fade(withDuration: 0.5)
+                    )
+                }
+            }
     }
 
     //before each frame
@@ -303,6 +363,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         actionButton.position.x = xPos + (size.width / 3.3)
         actionButton.position.y = yPos - (size.height / 10)
+        bulletButton.position.x = xPos + (size.width / 3.3)
+        bulletButton.position.y = yPos + (size.height/3.5)
+        
+        
+        pause.position.x = xPos - (size.width/2.5)
+        pause.position.y = yPos + (size.height/2.5)
 
         grapple.position = CGPoint(x: xPos, y: yPos)
 
@@ -362,6 +428,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             enemy.component(ofType: HealthComponent.self)?.takeDamage(
                 ammount: 1
             )
+            if let bulletNode = player.component(ofType: BulletComponent.self)?
+                .bull
+            {
+                bulletNode.physicsBody?.velocity = .zero
+            }
+
+            player.component(ofType: BulletComponent.self)?.bull?
+                .removeFromParent()
         }
         
         if names.contains("player") && names.contains("Boss Area") {

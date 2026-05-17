@@ -93,7 +93,7 @@ class Grapple: SKNode {
             vector: CGVector(dx: dx, dy: dy)
         )
 
-        AbilityCoolDown.startCoolDown()
+        AbilityCoolDown.startCoolDownG()
     }
 
 }

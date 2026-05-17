@@ -4,6 +4,7 @@ import GameplayKit
 class BulletButton: SKNode {
 
     var player = Player.shared
+    static var canShoot = true
     
     var label: SKLabelNode
     private var backGround: SKShapeNode
@@ -22,6 +23,7 @@ class BulletButton: SKNode {
         addChild(backGround)
         addChild(label)
         label.position.y = backGround.frame.midY
+        print(label.position)
     }
 
     required init?(coder: NSCoder) {
@@ -37,5 +39,11 @@ class BulletButton: SKNode {
         isUserInteractionEnabled = true
         addChild(backGround)
         addChild(label)
+    }
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if !BulletButton.canShoot { return }
+        
+        player.component(ofType: BulletComponent.self)?.fire()
+        AbilityCoolDown.startCoolDownB()
     }
 }
