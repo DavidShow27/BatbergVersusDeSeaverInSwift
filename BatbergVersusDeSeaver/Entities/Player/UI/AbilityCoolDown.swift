@@ -58,10 +58,18 @@ class AbilityCoolDown : SKNode {
 
     }
     
-    static func startCoolDown() {
+    static func startCoolDownG() {
         Grapple.canGrapple = false
         startProgressBar()
         timer = Timer.scheduledTimer(withTimeInterval: time, repeats: false, block: { _ in            Grapple.canGrapple = true
+        })
+    }
+    
+    static func startCoolDownB() {
+        
+        BulletButton.canShoot = false
+        startProgressBar()
+        timer = Timer.scheduledTimer(withTimeInterval: time, repeats: false, block: { _ in            BulletButton.canShoot = true
         })
     }
     
