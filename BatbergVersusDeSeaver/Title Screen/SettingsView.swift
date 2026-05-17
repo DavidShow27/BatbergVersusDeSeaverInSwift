@@ -8,14 +8,45 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @State var volume: Double = 0.5
+    @State var volume1: Float = 0.5
+    @State var volume2: Float = 0.5
     var body: some View {
-        VStack{
-            Text("Adjust the Volume")
-            Slider(value: $volume, in: 0...1) { _ in
-                AudioManager.shared.musicVolume = Float(volume)
+        
+        ZStack {
+            Color.orange.ignoresSafeArea()
+            VStack{
+                
+                Spacer()
+                
+                Text("Settings")
+                    .font(.custom("MortalKombat-Regular", size: 50))
+                
+                RoundedRectangle(cornerRadius: 25)
+                    .frame(height: 1)
+                Spacer()
+                
+                Text("Adjust Music Volume")
+                    .font(.custom("MortalKombat-Regular", size: 30))
+                
+                Slider(value: $volume1, in: 0...1) { _ in
+                    AudioManager.shared.musicVolume = volume1
+                }
+                Text("Volume: \(Int(volume1 * 100))%")
+                    .font(.title2)
+                
+                Spacer()
+                
+                Text("Adjust SFX Volume")
+                    .font(.custom("MortalKombat-Regular", size: 30))
+                
+                Slider(value: $volume2, in: 0...1) { _ in
+                    AudioManager.shared.sfxVolume = volume2
+                    AudioManager.shared.playSFX(named: "Hit")
+                }
+                Text("Volume: \(Int(volume2 * 100))%")
+                    .font(.title2)
             }
-            Text("Volume: \(Int(volume * 100))%")
+            
         }
     }
 }

@@ -73,6 +73,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 | PhysicsCategory.grapple
             sprite.name = "Floor"
         }
+        
+        if let sprite = self.childNode(withName: "Boss Area") as? SKSpriteNode {
+            sprite.alpha = 0
+            sprite.physicsBody = SKPhysicsBody(rectangleOf: sprite.size)
+            sprite.physicsBody?.isDynamic = false
+            sprite.physicsBody?.categoryBitMask = PhysicsCategory.none
+            sprite.physicsBody?.contactTestBitMask = PhysicsCategory.player
+            sprite.name = "Boss Area"
+        }
 
         if let playerNode = self.childNode(withName: "player") as? SKSpriteNode
         {
@@ -338,11 +347,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if names.contains("grapple") && names.contains("player") {
             player.component(ofType: GrappleComponent.self)?.removeGrapple()
         }
+        
         if names.contains("bullet") && names.contains("Floor") {
 
-            if let bulletNode = player.component(ofType: BulletComponent.self)?
-                .bull
-            {
+            if let bulletNode = player.component(ofType: BulletComponent.self)?.bull {
                 bulletNode.physicsBody?.velocity = .zero
             }
 
@@ -354,6 +362,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             enemy.component(ofType: HealthComponent.self)?.takeDamage(
                 ammount: 1
             )
+        }
+        
+        if names.contains("player") && names.contains("Boss Area") {
+            AudioManager.shared.stopMusic()
+            AudioManager.shared.playMusic(named: "Goattone")
         }
 
         if names.contains("player") && names.contains("Floor") {
@@ -528,6 +541,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if names.contains("player") && names.contains("Floor") {
             player.component(ofType: JumpComponent.self)?.isJumping = true
             player.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
+        }
+        
+        if names.contains("player") && names.contains("Boss Area") {
+            AudioManager.shared.stopMusic()
+            AudioManager.shared.playMusic(named: "background to the max")
         }
     }
 
