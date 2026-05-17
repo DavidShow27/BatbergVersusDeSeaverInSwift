@@ -328,12 +328,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 ofType: GrappleComponent.self
             )?.grap {
                 grappleNode.physicsBody?.velocity = .zero
-
+                grappleNode.physicsBody?.isDynamic = false
             }
             player.component(ofType: GrappleComponent.self)?.canLaunchEntity =
                 true
-            player.component(ofType: GrappleComponent.self)?.grap?
-                .removeFromParent()
             AudioManager.shared.playSFX(named: "GrapplePull")
         }
 

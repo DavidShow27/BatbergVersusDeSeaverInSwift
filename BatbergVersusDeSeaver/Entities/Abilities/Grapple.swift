@@ -86,6 +86,8 @@ class Grapple: SKNode {
         if !Grapple.canGrapple { return }
 
         trajectory.removeFromParent()
+        
+        if abs(dx) < 150 && abs(dy) < 150 { return }
 
         player.component(ofType: GrappleComponent.self)?.launch(
             vector: CGVector(dx: dx, dy: dy)
@@ -103,7 +105,7 @@ class GrappleComponent: GKComponent {
         return entity?.component(ofType: SpriteComponent.self)
     }
     var maxAccel: CGVector = .zero
-    let maxVelocity: CGFloat = 1750
+    let maxVelocity: CGFloat = 2500
     var canLaunchEntity: Bool = false
     var currentSpeed: CGFloat = .zero
 
@@ -125,7 +127,7 @@ class GrappleComponent: GKComponent {
             grap?.zPosition = 0
 
             grap?.physicsBody = SKPhysicsBody(
-                circleOfRadius: grap!.size.width / 2
+                circleOfRadius: grap!.size.width / 8
             )
 
             grap?.physicsBody?.affectedByGravity = false
@@ -146,8 +148,10 @@ class GrappleComponent: GKComponent {
     }
 
     func launch(vector: CGVector) {
+        
+        grappleAccel = .zero
 
-        maxAccel = CGVector(dx: vector.dx * 50, dy: vector.dy * 50)
+        maxAccel = CGVector(dx: vector.dx / 6.5, dy: vector.dy / 6.5)
         launchVector = vector
         canLaunch = true
 
@@ -178,7 +182,7 @@ class GrappleComponent: GKComponent {
         rope?.position = grap?.position ?? .zero
         rope?.fillColor = .white
 
-        let body = SKPhysicsBody(circleOfRadius: (grap?.size.width ?? 0) / 2)
+        let body = SKPhysicsBody(circleOfRadius: (grap?.size.width ?? 0) / 8)
 
         body.affectedByGravity = false
         body.isDynamic = true
@@ -219,8 +223,8 @@ class GrappleComponent: GKComponent {
         )
 
         grappleAccel = CGVector(
-            dx: grappleAccel.dx + maxAccel.dx / 175,
-            dy: grappleAccel.dy + maxAccel.dy / 175
+            dx: grappleAccel.dx + maxAccel.dx,
+            dy: grappleAccel.dy + maxAccel.dy
         )
 
         guard let playerPos = sprite?.node.position else { return }
