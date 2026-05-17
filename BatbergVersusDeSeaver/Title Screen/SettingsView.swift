@@ -6,16 +6,14 @@
 //
 
 import SwiftUI
-internal import AVFAudio
 
 struct SettingsView: View {
     @State var volume: Double = 0.5
-    @Binding var audio: AudioManegement
     var body: some View {
         VStack{
             Text("Adjust the Volume")
             Slider(value: $volume, in: 0...1) { _ in
-                audio.audioPlayer?.volume = Float(volume)
+                AudioManager.shared.musicVolume = Float(volume)
             }
             Text("Volume: \(Int(volume * 100))%")
         }
@@ -23,5 +21,5 @@ struct SettingsView: View {
 }
 
 #Preview {
-    SettingsView(audio: .constant(AudioManegement()))
+    SettingsView()
 }

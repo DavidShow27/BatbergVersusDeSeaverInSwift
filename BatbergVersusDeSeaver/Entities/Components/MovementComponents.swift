@@ -50,6 +50,7 @@ class JumpComponent: GKComponent {
         else { return }
         isJumping = true
         node.physicsBody?.velocity.dy = jumpStrength
+        AudioManager.shared.playSFX(named: "Jump")
     }
 }
 // When health is added
@@ -66,6 +67,7 @@ class GroundPoundComponent: GKComponent {
         guard let body = node.physicsBody else { return }
         isGroundPounding = true
         body.applyImpulse(CGVector(dx: 0, dy: groundPoundStrength))
+        AudioManager.shared.playSFX(named: "HardLanding")
     }
 }
 

@@ -20,7 +20,6 @@ class IdleState: GKState {
     }
     
     override func didEnter(from previousState: GKState?) {
-        print("entering idle state")
         entity?.component(ofType: MovementComponent.self)?.stop()
     }
     
@@ -41,7 +40,7 @@ class IdleState: GKState {
     }
     
     override func willExit(to nextState: GKState) {
-        print("leaving idle state")
+        
     }
     
     override func isValidNextState(_ stateClass: AnyClass) -> Bool {
@@ -59,7 +58,6 @@ class ChaseState : GKState {
     }
     
     override func didEnter(from previousState: GKState?) {
-        print("entering chasing state")
         entity?.component(ofType: FollowEntityComponent.self)?.flee = false
         entity?.component(ofType: FollowEntityComponent.self)?.follow = true
     }
@@ -118,7 +116,6 @@ class AttackState: GKState {
     }
     
     override func didEnter(from previousState: GKState?) {
-        print("entering attack state")
         entity?.lastCollisionSide = .reset
         entity?.component(ofType: FollowEntityComponent.self)?.follow = true
         entity?.component(ofType: AttackEntityComponent.self)?.attack = true

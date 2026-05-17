@@ -23,7 +23,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var player = Player.shared
 
     var enemies: [DeSeaver] = []
-    var goattone = Goattone()
+    var goattone: [Goattone] = []
 
     //var grapple: Grapple!
     var grappleSprite: SKSpriteNode!
@@ -39,8 +39,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let bulletButton = BulletButton(size: CGSize(width: 325, height: 325))
     let grapple = Grapple(size: 200)
     let abilityMeter = AbilityCoolDown(size: CGSize(width: 600, height: 20))
-
-    var backgroundMusic: AVAudioPlayer?
 
     //let topEdge = cam.position.y + (self.size.height / 2)
     /*
@@ -86,14 +84,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             spawnPoint = playerNode.position
         }
 
-        if let bossNode = self.childNode(withName: "boss") as? SKSpriteNode {
-            goattone.component(ofType: SpriteComponent.self)?.node = bossNode
-            goattone.component(ofType: PhysicsComponent.self)?.applyPhysics(
-                to: bossNode
-            )
-            goattone.component(ofType: HealthComponent.self)?.attachHealthBar(
-                to: bossNode
-            )
+        enumerateChildNodes(withName: "boss*") { bossNode, _ in
+            guard let newNode = self.makeGoattone(bossNode) else { return }
+            newNode.position = bossNode.position
+            self.addChild(newNode)
+            bossNode.removeFromParent()
         }
 
         enumerateChildNodes(withName: "enemy*") { sksNode, _ in
@@ -143,8 +138,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             name: .playerDied,
             object: nil
         )
-
-        playBackgroundMusic()
+        
+        AudioManager.shared.playMusic(named: "background to the max")
 
     }
 
@@ -168,27 +163,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         return spriteNode
     }
-
-    func playBackgroundMusic() {
+    
+    func makeGoattone(_ sksNode: SKNode) -> SKNode? {
+        let boss = Goattone()
         guard
-            let url =
-                Bundle.main.url(
-                    forResource: "background to the max",
-                    withExtension: "wav"
-                )
-        else {
-            print("Music file not found")
-            return
-        }
+            let spriteNode = boss.component(ofType: SpriteComponent.self)?.node
+        else { return nil }
 
-        do {
-            backgroundMusic = try AVAudioPlayer(contentsOf: url)
-            backgroundMusic?.numberOfLoops = -1  // loop forever
-            backgroundMusic?.volume = 0.5
-            backgroundMusic?.play()
-        } catch {
-            print("Could not load music: \(error)")
-        }
+        spriteNode.size.width = sksNode.frame.width
+        spriteNode.size.height = sksNode.frame.height
+
+        boss.component(ofType: PhysicsComponent.self)?.applyPhysics(
+            to: spriteNode
+        )
+        boss.component(ofType: HealthComponent.self)?.attachHealthBar(
+            to: spriteNode
+        )
+
+        goattone.append(boss)
+
+        return spriteNode
     }
 
     @objc func handlePlayerDied() {
@@ -277,7 +271,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         player.update(deltaTime: 1 / 60)
 
-        goattone.update(deltaTime: 1 / 60)
+        for goat in goattone {
+            goat.update(deltaTime: 1 / 60)
+        }
 
         for enemy in enemies {
             enemy.update(deltaTime: 1 / 60)
@@ -326,18 +322,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return contact.bodyA.node === enemyNode
                 || contact.bodyB.node === enemyNode
         }
+        
+        let involvedBoss = goattone.first { enemy in
+            let enemyNode = enemy.component(ofType: SpriteComponent.self)?.node
+            return contact.bodyA.node === enemyNode
+                || contact.bodyB.node === enemyNode
+        }
 
         if names.contains("grapple") && names.contains("Floor") {
             if let grappleNode = player.component(
                 ofType: GrappleComponent.self
             )?.grap {
                 grappleNode.physicsBody?.velocity = .zero
-
+                grappleNode.physicsBody?.isDynamic = false
             }
             player.component(ofType: GrappleComponent.self)?.canLaunchEntity =
                 true
-            player.component(ofType: GrappleComponent.self)?.grap?
-                .removeFromParent()
+            AudioManager.shared.playSFX(named: "GrapplePull")
         }
 
         if names.contains("grapple") && names.contains("player") {
@@ -381,9 +382,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 .isGroundPounding = false
         }
 
-        if names.contains("boss") && names.contains("Floor") {
-            goattone.component(ofType: JumpComponent.self)?.isJumping = false
-            goattone.component(ofType: GroundPoundComponent.self)?
+        if let boss = involvedBoss, names.contains("Floor") {
+            boss.component(ofType: JumpComponent.self)?.isJumping = false
+            boss.component(ofType: GroundPoundComponent.self)?
                 .isGroundPounding = false
         }
 
@@ -438,26 +439,25 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         }
 
-        if names.contains("boss") && names.contains("player") {
+        if let boss = involvedBoss, names.contains("player") {
 
             guard
                 let playerNode = player.component(ofType: SpriteComponent.self)?
                     .node
             else { return }
             guard
-                let enemyNode = goattone.component(
+                let enemyNode = boss.component(
                     ofType: SpriteComponent.self
                 )?.node
             else { return }
             let side = collisionSide(nodeA: enemyNode, nodeB: playerNode)
 
-            goattone.lastCollisionSide = side
-            print("Collision side: \(side)")
-
+            boss.lastCollisionSide = side
+            
             switch side {
             case .top:
                 // Player landed on enemy's head
-                goattone.component(ofType: HealthComponent.self)?.takeDamage(
+                boss.component(ofType: HealthComponent.self)?.takeDamage(
                     ammount: 1
                 )
                 // Bounce player up
@@ -474,7 +474,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 playerNode.physicsBody?.applyImpulse(
                     CGVector(dx: 250 * knockbackDir, dy: 150)
                 )
-
+                
+                if player.component(ofType: HealthComponent.self)?.health == 0 {
+                    let ranVL = Int.random(in: 1...3)
+                    AudioManager.shared.playSFX(named: "GoattoneVoiceLine\(ranVL)")
+                }
+                
             case .left, .right:
                 // Side collision — player walks into enemy
                 //player.component(ofType: HealthComponent.self)?.takeDamage(ammount: 1)
@@ -528,6 +533,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         if names.contains("player") && names.contains("Floor") {
             player.component(ofType: JumpComponent.self)?.isJumping = true
+            player.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
         }
     }
 

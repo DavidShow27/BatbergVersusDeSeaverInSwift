@@ -14,7 +14,7 @@ class Goattone : Enemy {
         super.init()
         addComponent(SpriteComponent(imageName: "goattone"))
         addComponent(BulletComponent())
-        addComponent(HealthComponent(health: 10))
+        addComponent(HealthComponent(health: 10, isGoattone: true))
     }
     
     @MainActor required init?(coder aDecoder: NSCoder) {

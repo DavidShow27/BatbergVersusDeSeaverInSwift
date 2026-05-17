@@ -73,11 +73,13 @@ class HealthComponent: GKComponent {
     var maxHealth: Int
     
     var isPlayer: Bool = false
+    var isGoattone: Bool = false
 
-    init(health: Int, isPlayer: Bool = false) {
+    init(health: Int, isPlayer: Bool = false, isGoattone: Bool = false) {
         self.health = health
         self.maxHealth = health
         self.isPlayer = isPlayer
+        self.isGoattone = isGoattone
         super.init()
     }
 
@@ -162,6 +164,7 @@ class HealthComponent: GKComponent {
     func takeDamage(ammount: Int) {
         health -= ammount
         updateHealthBar()
+        AudioManager.shared.playSFX(named: "Hit")
     }
 
     func die() {
