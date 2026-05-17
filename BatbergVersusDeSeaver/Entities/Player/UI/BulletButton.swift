@@ -38,4 +38,7 @@ class BulletButton: SKNode {
         addChild(backGround)
         addChild(label)
     }
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        player.component(ofType: BulletComponent.self)?.fire()
+    }
 }

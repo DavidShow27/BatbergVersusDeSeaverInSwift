@@ -36,6 +36,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     let joyStick = Joystick(size: 175)
     let actionButton = ActionButton(size: CGSize(width: 325, height: 325))
+    let bulletButton = BulletButton(size: CGSize(width: 325, height: 325))
     let grapple = Grapple(size: 200)
     let abilityMeter = AbilityCoolDown(size: CGSize(width: 600, height: 20))
 
@@ -117,11 +118,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         joyStick.zPosition = 1
         actionButton.zPosition = 1
+        bulletButton.zPosition = 1
+
         grapple.zPosition = 0
         abilityMeter.zPosition = 1
 
         addChild(joyStick)
         addChild(actionButton)
+        addChild(bulletButton)
         addChild(grapple)
         addChild(abilityMeter)
 
@@ -298,6 +302,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         actionButton.position.x = xPos + (size.width / 3.3)
         actionButton.position.y = yPos - (size.height / 10)
+        bulletButton.position.x = xPos + (size.width / 3.3)
+        bulletButton.position.y = yPos - (size.height / 10)
 
         grapple.position = CGPoint(x: xPos, y: yPos)
 

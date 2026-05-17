@@ -10,7 +10,7 @@ import GameplayKit
 
 class BulletComponent: GKComponent {
     var bull: SKSpriteNode?
-    let velocity = CGVector(dx: 600, dy: 0)
+    let velocity = CGVector(dx: 50, dy: 0)
 
     override func didAddToEntity() {
 
@@ -41,7 +41,7 @@ class BulletComponent: GKComponent {
     func fire(){
         guard let bull = bull else { return }
         guard let scene = entity?.component(ofType: SpriteComponent.self)?.node.parent else { return }
-        scene.addChild(bull)
+        
 
         let move = SKAction.move(by: velocity, duration: 1)
         let repeatMove = SKAction.repeatForever(move)
