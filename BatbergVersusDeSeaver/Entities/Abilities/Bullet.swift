@@ -80,10 +80,10 @@ class BulletComponent: GKComponent {
                 count += 1
             }
             
-            let move = SKAction.move(by: velocity, duration: 1)
-            let repeatMove = SKAction.repeatForever(move)
+            let move = SKAction.move(by: velocity, duration: 0.5)
+            let delete = SKAction.run { self.bull?.removeFromParent() }
             
-            bull?.run(repeatMove)
+            bull?.run(SKAction.sequence([move,delete]))
         }
     }
 }

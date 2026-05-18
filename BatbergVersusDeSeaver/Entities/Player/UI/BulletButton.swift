@@ -16,7 +16,7 @@ class BulletButton: SKNode {
         backGround.lineWidth = 2
         label = SKLabelNode(text: "shoot")
         label.fontName = "MortalKombat-Regular"
-        label.fontSize = 48
+        label.fontSize = 85
         label.fontColor = .white
         super.init()
         isUserInteractionEnabled = true
@@ -44,6 +44,7 @@ class BulletButton: SKNode {
         if !BulletButton.canShoot { return }
         
         player.component(ofType: BulletComponent.self)?.fire()
-        AbilityCoolDown.startCoolDownB()
+        AbilityCoolDown.time = 5
+        AbilityCoolDown.startCoolDown()
     }
 }

@@ -92,8 +92,9 @@ class Grapple: SKNode {
         player.component(ofType: GrappleComponent.self)?.launch(
             vector: CGVector(dx: dx, dy: dy)
         )
-
-        AbilityCoolDown.startCoolDownG()
+        
+        AbilityCoolDown.time = 1.5
+        AbilityCoolDown.startCoolDown()
     }
 
 }

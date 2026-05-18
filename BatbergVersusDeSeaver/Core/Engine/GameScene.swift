@@ -436,6 +436,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
             player.component(ofType: BulletComponent.self)?.bull?
                 .removeFromParent()
+            
+            enemy.stateMachine.enter(ChaseState.self)
         }
         
         if names.contains("player") && names.contains("Boss Area") {
@@ -444,7 +446,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         if names.contains("player") && names.contains("Floor") {
 
-            guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
+            guard let playerNode = contact.bodyA.node else { return }
             guard let floorNode = contact.bodyB.node else { return }
 
             let side = collisionSide(nodeA: playerNode, nodeB: floorNode)
@@ -457,15 +459,29 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
 
         if let enemy = involvedEnemy, names.contains("Floor") {
-            enemy.component(ofType: JumpComponent.self)?.isJumping = false
-            enemy.component(ofType: GroundPoundComponent.self)?
-                .isGroundPounding = false
+            guard let enemyNode = contact.bodyA.node else { return }
+            guard let floorNode = contact.bodyB.node else { return }
+
+            let side = collisionSide(nodeA: enemyNode, nodeB: floorNode)
+
+            if side == .bottom {
+                enemy.component(ofType: JumpComponent.self)?.isJumping = false
+                enemy.component(ofType: GroundPoundComponent.self)?
+                    .isGroundPounding = false
+            }
         }
 
         if let boss = involvedBoss, names.contains("Floor") {
-            boss.component(ofType: JumpComponent.self)?.isJumping = false
-            boss.component(ofType: GroundPoundComponent.self)?
-                .isGroundPounding = false
+            guard let bossNode = contact.bodyA.node else { return }
+            guard let floorNode = contact.bodyB.node else { return }
+
+            let side = collisionSide(nodeA: bossNode, nodeB: floorNode)
+
+            if side == .bottom {
+                boss.component(ofType: JumpComponent.self)?.isJumping = false
+                boss.component(ofType: GroundPoundComponent.self)?
+                    .isGroundPounding = false
+            }
         }
 
         if let enemy = involvedEnemy, names.contains("player") {

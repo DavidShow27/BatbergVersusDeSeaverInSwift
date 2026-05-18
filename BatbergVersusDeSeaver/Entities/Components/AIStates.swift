@@ -78,7 +78,7 @@ class ChaseState : GKState {
         }
                 
         // Lost the player
-        if distance > 700 {
+        if distance > 3000 {
             stateMachine?.enter(IdleState.self)
         }
         

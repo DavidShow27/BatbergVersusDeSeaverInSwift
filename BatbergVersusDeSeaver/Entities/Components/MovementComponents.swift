@@ -24,11 +24,13 @@ class MovementComponent: GKComponent {
     }
 
     func left() {
+        guard entity?.component(ofType: SlideComponent.self)?.isSliding == false else { return }
         velocity = CGVectorMake(-1, 0)
         sprite?.node.xScale = -1
     }
 
     func right() {
+        guard entity?.component(ofType: SlideComponent.self)?.isSliding == false else { return }
         velocity = CGVectorMake(1, 0)
         sprite?.node.xScale = 1
     }
