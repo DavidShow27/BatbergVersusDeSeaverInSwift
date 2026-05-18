@@ -439,7 +439,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if names.contains("player") && names.contains("Boss Area") {
-            AudioManager.shared.stopMusic()
             AudioManager.shared.playMusic(named: "Goattone")
         }
 
@@ -471,14 +470,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         if let enemy = involvedEnemy, names.contains("player") {
 
-            guard
-                let playerNode = player.component(ofType: SpriteComponent.self)?
-                    .node
-            else { return }
-            guard
-                let enemyNode = enemy.component(ofType: SpriteComponent.self)?
-                    .node
-            else { return }
+            guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
+            guard let enemyNode = enemy.component(ofType: SpriteComponent.self)?.node else { return }
+            
+            guard let pgp = player.component(ofType: GroundPoundComponent.self)?.isGroundPounding else  { return }
+            guard let egp = enemy.component(ofType: GroundPoundComponent.self)?.isGroundPounding else  { return }
+            
             let side = collisionSide(nodeA: enemyNode, nodeB: playerNode)
 
             enemy.lastCollisionSide = side
@@ -486,22 +483,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
             switch side {
             case .top:
+                
                 // Player landed on enemy's head
-                enemy.component(ofType: HealthComponent.self)?.takeDamage(
-                    ammount: 1
-                )
+                if pgp {
+                    enemy.component(ofType: HealthComponent.self)?.takeDamage(
+                        ammount: 1
+                    )
+                    player.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
+                }
                 // Bounce player up
-                playerNode.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 350))
-                player.component(ofType: JumpComponent.self)?.isJumping = false
+                playerNode.physicsBody?.applyImpulse(CGVector(dx: Int.random(in: -100...100), dy: 350))
 
             case .bottom:
                 // Enemy landed on player
-                player.component(ofType: HealthComponent.self)?.takeDamage(
-                    ammount: 1
-                )
+                if egp {
+                    player.component(ofType: HealthComponent.self)?.takeDamage(
+                        ammount: 1
+                    )
+                    enemy.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
+                }
                 let knockbackDir: CGFloat =
                     playerNode.position.x > enemyNode.position.x ? 1 : -1
-                playerNode.physicsBody?.applyImpulse(
+                enemyNode.physicsBody?.applyImpulse(
                     CGVector(dx: 250 * knockbackDir, dy: 150)
                 )
 
@@ -522,15 +525,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
         if let boss = involvedBoss, names.contains("player") {
 
-            guard
-                let playerNode = player.component(ofType: SpriteComponent.self)?
-                    .node
-            else { return }
-            guard
-                let enemyNode = boss.component(
-                    ofType: SpriteComponent.self
-                )?.node
-            else { return }
+            guard let playerNode = player.component(ofType: SpriteComponent.self)?.node else { return }
+            guard let enemyNode = boss.component(ofType: SpriteComponent.self)?.node else { return }
+            
+            guard let pgp = player.component(ofType: GroundPoundComponent.self)?.isGroundPounding else  { return }
+            guard let bgp = boss.component(ofType: GroundPoundComponent.self)?.isGroundPounding else  { return }
+            
             let side = collisionSide(nodeA: enemyNode, nodeB: playerNode)
 
             boss.lastCollisionSide = side
@@ -538,18 +538,56 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             switch side {
             case .top:
                 // Player landed on enemy's head
-                boss.component(ofType: HealthComponent.self)?.takeDamage(
-                    ammount: 1
-                )
+                if pgp {
+                    boss.component(ofType: HealthComponent.self)?.takeDamage(
+                        ammount: 1
+                    )
+                    player.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
+                }
                 // Bounce player up
-                playerNode.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 350))
-                player.component(ofType: JumpComponent.self)?.isJumping = false
+                playerNode.physicsBody?.applyImpulse(CGVector(dx: Int.random(in: -1000...1000), dy: 350))
+                
+                if boss.component(ofType: HealthComponent.self)?.health == 0 {
+                    // Create a thank you label
+                    let thxLabel = SKLabelNode(text: "Thank you for playing Batberg Versus DeSeaver!!!!")
+                    let creditLabel = SKLabelNode(text: "Developed by: David, Diego, Jackson, James")
+                    let teachLabel = SKLabelNode(text: "Special thanks to Seaver, SwedBerg, and Gattone")
+                    let teachLabel2 = SKLabelNode(text: "We wouldn't have made this without you (for better or for worse)")
+                    // Too lazy to make func for this instance
+                    thxLabel.position = CGPoint(x: -8485.743, y: 4200.647)
+                    thxLabel.fontSize = 48
+                    thxLabel.fontColor = .white
+                    thxLabel.zPosition = 2
+                    
+                    creditLabel.position = CGPoint(x: -8485.743, y: 4200.647 - 50)
+                    creditLabel.fontSize = 48
+                    creditLabel.fontColor = .white
+                    creditLabel.zPosition = 2
+                    
+                    teachLabel.position = CGPoint(x: -8485.743, y: 4200.647 - 100)
+                    teachLabel.fontSize = 48
+                    teachLabel.fontColor = .white
+                    teachLabel.zPosition = 2
+                    
+                    teachLabel2.position = CGPoint(x: -8485.743, y: 4200.647 - 150)
+                    teachLabel2.fontSize = 48
+                    teachLabel2.fontColor = .white
+                    teachLabel2.zPosition = 2
+                    
+                    scene?.addChild(thxLabel)
+                    scene?.addChild(creditLabel)
+                    scene?.addChild(teachLabel)
+                    scene?.addChild(teachLabel2)
+                }
 
             case .bottom:
                 // Enemy landed on player
-                player.component(ofType: HealthComponent.self)?.takeDamage(
-                    ammount: 1
-                )
+                if bgp {
+                    player.component(ofType: HealthComponent.self)?.takeDamage(
+                        ammount: 1
+                    )
+                    boss.component(ofType: GroundPoundComponent.self)?.isGroundPounding = false
+                }
                 let knockbackDir: CGFloat =
                     playerNode.position.x > enemyNode.position.x ? 1 : -1
                 playerNode.physicsBody?.applyImpulse(
@@ -618,8 +656,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         if names.contains("player") && names.contains("Boss Area") {
-            AudioManager.shared.stopMusic()
-            AudioManager.shared.playMusic(named: "background to the max")
+            // Makes a node that prevents the player from leaving the goattone arena
+            let blockWall = SKSpriteNode(imageNamed: "Magma center")
+            blockWall.size = CGSize(width: 256, height: 256)
+            blockWall.position = CGPoint(x: -7222.127, y: 6213.339)
+            
+            blockWall.physicsBody = SKPhysicsBody(rectangleOf: blockWall.size)
+            
+            blockWall.physicsBody?.isDynamic = false
+            blockWall.physicsBody?.allowsRotation = false
+            blockWall.physicsBody?.affectedByGravity = false
+            blockWall.physicsBody?.pinned = true
+            
+            
+            blockWall.physicsBody?.contactTestBitMask = 0
+            
+            scene?.addChild(blockWall)
         }
     }
 

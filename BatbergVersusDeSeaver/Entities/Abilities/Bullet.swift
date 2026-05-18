@@ -68,7 +68,7 @@ class BulletComponent: GKComponent {
             
             scene.addChild(bull ?? SKSpriteNode(imageNamed: "bullet"))
             
-            guard let dir = playerNode.xScale as? CGFloat else { return }
+            let dir = playerNode.xScale as CGFloat
             var count = 0
             if dir < 0 {
                 velocity.dx = -abs(velocity.dx)
